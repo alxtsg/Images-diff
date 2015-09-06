@@ -1,0 +1,17 @@
+{
+  "name": "images-diff",
+  "version": "1.0.0",
+  "description": "Compares images in a directory in sequential manner and report the differences.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/alxtsg/images-diff.git"
+  },
+  "author": "alextsang@live.com",
+  "license": "UNLICENSED",
+  "private": true,
+  "homepage": "https://bitbucket.org/alxtsg/images-diff#readme"
+}
