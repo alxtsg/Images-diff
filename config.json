@@ -1,4 +1,5 @@
 {
   "gmPath": "C:\\Program Files\\GraphicsMagick-1.3.21-Q8\\gm.exe",
-  "differenceTheshold": 0.0005
+  "differenceTheshold": 0.0005,
+  "abnormalImagesDirectoryName": "abnormal"
 }

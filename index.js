@@ -19,6 +19,10 @@
 
     currentDate = null,
 
+    abnormalImages = [],
+
+    abnormalImagesDirectoryName = null,
+
     printUsage = function(){
       console.error('Usage: node index.js <config> <images-directory>');
     },
@@ -27,9 +31,25 @@
       return imagesDirectoryPath + path.sep + fileName;
     },
 
+    buildAbnormalImagesDirectoryPath = function(){
+      return imagesDirectoryPath +
+        path.sep +
+        abnormalImagesDirectoryName;
+    },
+
+    buildAbnormalImageFilePath = function(fileName){
+      return imagesDirectoryPath +
+        path.sep +
+        abnormalImagesDirectoryName +
+        path.sep +
+        fileName;
+    },
+
     parseConfig = null,
 
-    startDiff = null;
+    startDiff = null,
+
+    copyAbnormalImages = null;
 
   parseConfig = function(){
     fs.readFile(
@@ -51,6 +71,10 @@
             logPath: config.logPath
           });
           differenceTheshold = parseFloat(config.differenceTheshold);
+          if((config.abnormalImagesDirectoryName !== undefined) ||
+            (config.abnormalImagesDirectoryName !== null)){
+            abnormalImagesDirectoryName = config.abnormalImagesDirectoryName;
+          }
           process.nextTick(startDiff);
         }catch(parseConfigError){
           console.error('Unable to parse configuration file.');
@@ -86,6 +110,9 @@
         var message = null;
         if(difference > differenceTheshold){
           message = 'WARN';
+          // Add both images are considered as abnormal.
+          abnormalImages.push(files[currentFileIndex - 1]);
+          abnormalImages.push(files[currentFileIndex]);
         }else{
           message = 'OKAY';
         }
@@ -103,7 +130,12 @@
             'Completed at %s.',
             currentDate.toISOString()
           ));
-          process.exit(0);
+          if((abnormalImages.length !== 0) &&
+            (abnormalImagesDirectoryName !== null)){
+            copyAbnormalImages();
+          }else{
+            process.exit(0);
+          }
         }else{
           imageDiff.diff(
             buildImageFilePath(files[currentFileIndex - 1]),
@@ -117,6 +149,43 @@
         buildImageFilePath(files[currentFileIndex - 1]),
         buildImageFilePath(files[currentFileIndex])
       );
+    });
+  };
+
+  copyAbnormalImages = function(){
+    var files = [],
+      copiedFiles = 0;
+    // Filter duplicated files.
+    abnormalImages.forEach(function(abnormalImage){
+      if(files.indexOf(abnormalImage) < 0){
+        files.push(abnormalImage);
+      }
+    });
+    // Copy abnormal image files.
+    currentDate = new Date();
+    console.log(util.format('Copy start at %s.', currentDate.toISOString()));
+    fs.mkdir(buildAbnormalImagesDirectoryPath(), function(mkdirError){
+      if(mkdirError !== null){
+        console.error('Unable to create directory for abnormal images.');
+        console.error(mkdirError);
+        process.exit(1);
+      }
+      files.forEach(function(file){
+        var readStream = fs.createReadStream(buildImageFilePath(file)),
+          writeStream = fs.createWriteStream(buildAbnormalImageFilePath(file));
+        writeStream.on('finish', function(){
+          copiedFiles += 1;
+          if(copiedFiles === files.length){
+            currentDate = new Date();
+            console.log(util.format(
+              'Copy completed at %s.',
+              currentDate.toISOString()
+            ));
+            process.exit(0);
+          }
+        });
+        readStream.pipe(writeStream);
+      });
     });
   };
 
