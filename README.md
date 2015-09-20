@@ -21,6 +21,7 @@ The configuration file `config.json` controls the following:
 
 * `gmPath`: The path of GraphicsMagick executable. Useful when GraphicsMagick is not in PATH environment variable.
 * `differenceTheshold`: The maximum mean squared error (MSE) can be tolerated for each comparison.
+* `abnormalImagesDirectoryName`: The directory name where abnormal images will be copied into. The directory will be created automatically under the directory which containing images for analysis. If it is not specified, abnormal images will not be copied.
 
 ## Examples ##
 
