@@ -1,4 +1,4 @@
-module.exports = (function(){
+module.exports = (function () {
 
   'use strict';
 
@@ -6,7 +6,7 @@ module.exports = (function(){
     EventEmitter = require('events').EventEmitter,
     util = require('util'),
 
-    ImageDiff = function(config){
+    ImageDiff = function (config) {
       this.gmPath = config.gmPath;
       this.comparisonMetric = 'mse';
       this.comparisonResultRegex = /Total: (\d+\.?\d*)/m;
@@ -14,7 +14,7 @@ module.exports = (function(){
 
   util.inherits(ImageDiff, EventEmitter);
 
-  ImageDiff.prototype.diff = function(imageA, imageB){
+  ImageDiff.prototype.diff = function (imageA, imageB) {
     var self = this,
       commandArguments = [
         'compare',
@@ -26,25 +26,25 @@ module.exports = (function(){
       gm = spawn(self.gmPath, commandArguments),
       gmOutput = '',
       normalizedDifference = 0;
-    gm.on('error', function(error){
+    gm.on('error', function (error) {
       self.emit('error', error);
     });
-    gm.on('close', function(code){
-      if(code !== 0){
+    gm.on('close', function (code) {
+      if (code !== 0) {
         self.emit(
           'error',
           util.format('GraphicsMagick exit with code %d.', code)
         );
-      }else{
+      } else {
         normalizedDifference = self.comparisonResultRegex.exec(gmOutput);
-        if(normalizedDifference === null){
+        if (normalizedDifference === null) {
           self.emit('error', 'Unable to parse GraphicsMagick output.');
-        }else{
+        } else {
           self.emit('done', parseFloat(normalizedDifference[1]));
         }
       }
     });
-    gm.stdout.on('data', function(data){
+    gm.stdout.on('data', function (data) {
       gmOutput += data;
     });
   };
