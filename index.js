@@ -50,7 +50,10 @@
      * @return {String} Path of file.
      */
     buildImageFilePath = function (fileName) {
-      return imagesDirectoryPath + path.sep + fileName;
+      return path.join(
+        imagesDirectoryPath,
+        fileName
+      );
     },
 
     /**
@@ -59,9 +62,10 @@
      * @return {String} Directory path of abnormal images.
      */
     buildAbnormalImagesDirectoryPath = function () {
-      return imagesDirectoryPath +
-        path.sep +
-        abnormalImagesDirectoryName;
+      return path.join(
+        imagesDirectoryPath,
+        abnormalImagesDirectoryName
+      );
     },
 
     /**
@@ -72,11 +76,11 @@
      * @return {String} Path of the abnormal image.
      */
     buildAbnormalImageFilePath = function (fileName) {
-      return imagesDirectoryPath +
-        path.sep +
-        abnormalImagesDirectoryName +
-        path.sep +
-        fileName;
+      return path.join(
+        imagesDirectoryPath,
+        abnormalImagesDirectoryName,
+        fileName
+      );
     },
 
     // Placeholders of functions.
