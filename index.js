@@ -2,7 +2,7 @@
 
   'use strict';
 
-  var ImageDiff = require('./image-diff.js'),
+  var ImagesDiff = require('./images-diff.js'),
 
     fs = require('fs'),
     path = require('path'),
@@ -13,7 +13,7 @@
 
     imagesDirectoryPath = null,
 
-    imageDiff = null,
+    imagesDiff = null,
 
     differenceTheshold = 0,
 
@@ -66,7 +66,7 @@
         }
         try {
           config = JSON.parse(data);
-          imageDiff = new ImageDiff({
+          imagesDiff = new ImagesDiff({
             gmPath: config.gmPath,
             logPath: config.logPath
           });
@@ -101,12 +101,12 @@
         console.log('The directory contains 1 image file only.');
         process.exit(0);
       }
-      imageDiff.on('error', function (imageDiffError) {
+      imagesDiff.on('error', function (imagesDiffError) {
         console.error('Unable to compare images.');
-        console.error(imageDiffError);
+        console.error(imagesDiffError);
         process.exit(1);
       });
-      imageDiff.on('done', function (difference) {
+      imagesDiff.on('done', function (difference) {
         var message = null;
         if (difference > differenceTheshold) {
           message = 'WARN';
@@ -137,7 +137,7 @@
             process.exit(0);
           }
         } else {
-          imageDiff.diff(
+          imagesDiff.diff(
             buildImageFilePath(files[currentFileIndex - 1]),
             buildImageFilePath(files[currentFileIndex])
           );
@@ -145,7 +145,7 @@
       });
       currentDate = new Date();
       console.log(util.format('Start at %s.', currentDate.toISOString()));
-      imageDiff.diff(
+      imagesDiff.diff(
         buildImageFilePath(files[currentFileIndex - 1]),
         buildImageFilePath(files[currentFileIndex])
       );
