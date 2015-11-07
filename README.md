@@ -13,21 +13,21 @@ Compares images in a directory in sequential manner and report the differences.
 
 0. Install Node.js.
 1. Install GraphicsMagick.
-2. Start the application by `node index.js <config> <images-directory>`, where `<config>` is the path of configuration file and `<images-directory>` is the path of directory containing images for comparisons.
+2. Start the application by `node index.js <images-directory>`, where `<images-directory>` is the path of directory containing images for comparisons.
 
 ## Usage ##
 
 The configuration file `config.json` controls the following:
 
-* `gmPath`: The path of GraphicsMagick executable. Useful when GraphicsMagick is not in PATH environment variable.
-* `differenceTheshold`: The maximum mean squared error (MSE) can be tolerated for each comparison.
+* `gmPath`: The path of GraphicsMagick executable `gm` on BSD UNIX or `gm.exe` on Windows.
+* `differenceThreshold`: The maximum mean squared error (MSE) that can be tolerated for each comparison.
 * `abnormalImagesDirectoryName`: The directory name where abnormal images will be copied into. The directory will be created automatically under the directory which containing images for analysis. If it is not specified, abnormal images will not be copied.
 
 ## Examples ##
 
 Assuming the directory containing images for comparisons is `/path/to/images/directory`, execute:
 
-`node index.js config.json /path/to/images/directory`
+`node index.js /path/to/images/directory`
 
 You will get output similar to the following:
 
