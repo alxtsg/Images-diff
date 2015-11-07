@@ -1,3 +1,8 @@
+/**
+ * Library for finding differences between 2 images.
+ *
+ * @author Alex Tsang <alextsang@live.com>
+ */
 module.exports = (function () {
 
   'use strict';
@@ -6,6 +11,16 @@ module.exports = (function () {
     EventEmitter = require('events').EventEmitter,
     util = require('util'),
 
+    /**
+     * Constructor.
+     *
+     * @class
+     * @constructor
+     *
+     * @param {Object} config Configuration in form of JSON object. Expected
+     *                        properties:
+     *                        gmPath: Path of GraphicsMagick.
+     */
     ImageDiff = function (config) {
       this.gmPath = config.gmPath;
       this.comparisonMetric = 'mse';
@@ -14,6 +29,14 @@ module.exports = (function () {
 
   util.inherits(ImageDiff, EventEmitter);
 
+  /**
+   * Finds differences between 2 images. Emits "error" with error message when
+   * unable to compute the differences. Emits "done" with a number (differences
+   * of images) when computation is completed.
+   *
+   * @param {String} imageA Path of an image.
+   * @param {String} imageB Path of another image.
+   */
   ImageDiff.prototype.diff = function (imageA, imageB) {
     var self = this,
       commandArguments = [
