@@ -1,3 +1,8 @@
+/**
+ * Main program.
+ *
+ * @author Alex Tsang <alextsang@live.com>
+ */
 (function () {
 
   'use strict';
@@ -9,34 +14,63 @@
     process = require('process'),
     util = require('util'),
 
+    // Configuration file path.
     configFilePath = null,
 
+    // Images directory path.
     imagesDirectoryPath = null,
 
+    // ImagesDiff instance.
     imagesDiff = null,
 
-    differenceTheshold = 0,
+    // Differences threshold.
+    differenceThreshold = 0,
 
+    // Current date.
     currentDate = null,
 
+    // An array of paths of abnormal images.
     abnormalImages = [],
 
+    // Directory name of abnormal images.
     abnormalImagesDirectoryName = null,
 
+    /**
+     * Prints program usage.
+     */
     printUsage = function () {
       console.error('Usage: node index.js <config> <images-directory>');
     },
 
+    /**
+     * Builds file path.
+     *
+     * @param {String} fileName Filename.
+     *
+     * @return {String} Path of file.
+     */
     buildImageFilePath = function (fileName) {
       return imagesDirectoryPath + path.sep + fileName;
     },
 
+    /**
+     * Builds directory path of abnormal images.
+     *
+     * @return {String} Directory path of abnormal images.
+     */
     buildAbnormalImagesDirectoryPath = function () {
       return imagesDirectoryPath +
         path.sep +
         abnormalImagesDirectoryName;
     },
 
+    /**
+     * Builds file path of an abnormal image.
+     *
+     * @param {String} fileName Filename.
+     *
+     * @return {String} Path of the abnormal image.
+     */
     buildAbnormalImageFilePath = function (fileName) {
       return imagesDirectoryPath +
         path.sep +
@@ -45,12 +79,14 @@
         fileName;
     },
 
+    // Placeholders of functions.
     parseConfig = null,
-
     startDiff = null,
-
     copyAbnormalImages = null;
 
+  /**
+   * Parses configuration file.
+   */
   parseConfig = function () {
     fs.readFile(
       configFilePath,
@@ -70,7 +106,7 @@
             gmPath: config.gmPath,
             logPath: config.logPath
           });
-          differenceTheshold = parseFloat(config.differenceTheshold);
+          differenceThreshold = parseFloat(config.differenceThreshold);
           if ((config.abnormalImagesDirectoryName !== undefined) ||
             (config.abnormalImagesDirectoryName !== null)) {
             abnormalImagesDirectoryName = config.abnormalImagesDirectoryName;
@@ -85,6 +121,10 @@
     );
   };
 
+  /**
+   * Starts computing the differences among images. Given images A0, A1, A2 and
+   * A3, differences of A0 and A1, A1 and A2, A2 and A3 will be computed.
+   */
   startDiff = function () {
     fs.readdir(imagesDirectoryPath, function (readDirError, files) {
       var currentFileIndex = 1;
@@ -108,9 +148,9 @@
       });
       imagesDiff.on('done', function (difference) {
         var message = null;
-        if (difference > differenceTheshold) {
+        if (difference > differenceThreshold) {
           message = 'WARN';
-          // Add both images are considered as abnormal.
+          // Both images are considered as abnormal.
           abnormalImages.push(files[currentFileIndex - 1]);
           abnormalImages.push(files[currentFileIndex]);
         } else {
@@ -152,6 +192,9 @@
     });
   };
 
+  /**
+   * Copies abnormal images to the abnormal images directory.
+   */
   copyAbnormalImages = function () {
     var files = [],
       copiedFiles = 0;
@@ -189,6 +232,7 @@
     });
   };
 
+  // 4 arguments are expected.
   if (process.argv.length !== 4) {
     printUsage();
     process.exit(1);
