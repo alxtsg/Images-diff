@@ -15,7 +15,10 @@
     util = require('util'),
 
     // Configuration file path.
-    CONFIG_FILE_PATH = 'config.json',
+    CONFIG_FILE_PATH = path.join(
+      __dirname,
+      'config.json'
+    ),
 
     // Images directory path.
     imagesDirectoryPath = null,
