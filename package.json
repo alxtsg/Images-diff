@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Compares images in a directory in sequential manner and report the differences.",
   "main": "index.js",
   "scripts": {
