@@ -15,7 +15,7 @@
     util = require('util'),
 
     // Configuration file path.
-    configFilePath = null,
+    CONFIG_FILE_PATH = 'config.json',
 
     // Images directory path.
     imagesDirectoryPath = null,
@@ -39,7 +39,7 @@
      * Prints program usage.
      */
     printUsage = function () {
-      console.error('Usage: node index.js <config> <images-directory>');
+      console.error('Usage: node index.js <images-directory>');
     },
 
     /**
@@ -93,7 +93,7 @@
    */
   parseConfig = function () {
     fs.readFile(
-      configFilePath,
+      CONFIG_FILE_PATH,
       {
         encoding: 'utf8'
       },
@@ -235,14 +235,12 @@
   };
 
   // 4 arguments are expected.
-  if (process.argv.length !== 4) {
+  if (process.argv.length !== 3) {
     printUsage();
     process.exit(1);
   }
 
-  configFilePath = process.argv[2];
-
-  imagesDirectoryPath = process.argv[3];
+  imagesDirectoryPath = process.argv[2];
 
   parseConfig();
 }());
