@@ -21,13 +21,13 @@ module.exports = (function () {
      *                        properties:
      *                        gmPath: Path of GraphicsMagick.
      */
-    ImageDiff = function (config) {
+    ImagesDiff = function (config) {
       this.gmPath = config.gmPath;
       this.comparisonMetric = 'mse';
       this.comparisonResultRegex = /Total: (\d+\.?\d*)/m;
     };
 
-  util.inherits(ImageDiff, EventEmitter);
+  util.inherits(ImagesDiff, EventEmitter);
 
   /**
    * Finds differences between 2 images. Emits "error" with error message when
@@ -37,7 +37,7 @@ module.exports = (function () {
    * @param {String} imageA Path of an image.
    * @param {String} imageB Path of another image.
    */
-  ImageDiff.prototype.diff = function (imageA, imageB) {
+  ImagesDiff.prototype.diff = function (imageA, imageB) {
     var self = this,
       commandArguments = [
         'compare',
@@ -72,5 +72,5 @@ module.exports = (function () {
     });
   };
 
-  return ImageDiff;
+  return ImagesDiff;
 }());
