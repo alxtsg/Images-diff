@@ -200,8 +200,7 @@
    * Copies abnormal images to the abnormal images directory.
    */
   copyAbnormalImages = function () {
-    var files = [],
-      copiedFiles = 0;
+    var files = [];
     // Filter duplicated files.
     abnormalImages.forEach(function (abnormalImage) {
       if (files.indexOf(abnormalImage) < 0) {
@@ -217,12 +216,11 @@
         console.error(mkdirError);
         process.exit(1);
       }
-      files.forEach(function (file) {
+      files.forEach(function (file, index) {
         var readStream = fs.createReadStream(buildImageFilePath(file)),
           writeStream = fs.createWriteStream(buildAbnormalImageFilePath(file));
         writeStream.on('finish', function () {
-          copiedFiles += 1;
-          if (copiedFiles === files.length) {
+          if (index === (files.length - 1)) {
             currentDate = new Date();
             console.log(util.format(
               'Copy completed at %s.',
