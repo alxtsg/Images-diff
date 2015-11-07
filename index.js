@@ -1,4 +1,4 @@
-(function(){
+(function () {
 
   'use strict';
 
@@ -23,21 +23,21 @@
 
     abnormalImagesDirectoryName = null,
 
-    printUsage = function(){
+    printUsage = function () {
       console.error('Usage: node index.js <config> <images-directory>');
     },
 
-    buildImageFilePath = function(fileName){
+    buildImageFilePath = function (fileName) {
       return imagesDirectoryPath + path.sep + fileName;
     },
 
-    buildAbnormalImagesDirectoryPath = function(){
+    buildAbnormalImagesDirectoryPath = function () {
       return imagesDirectoryPath +
         path.sep +
         abnormalImagesDirectoryName;
     },
 
-    buildAbnormalImageFilePath = function(fileName){
+    buildAbnormalImageFilePath = function (fileName) {
       return imagesDirectoryPath +
         path.sep +
         abnormalImagesDirectoryName +
@@ -51,32 +51,32 @@
 
     copyAbnormalImages = null;
 
-  parseConfig = function(){
+  parseConfig = function () {
     fs.readFile(
       configFilePath,
       {
         encoding: 'utf8'
       },
-      function(readConfigError, data){
+      function (readConfigError, data) {
         var config = null;
-        if(readConfigError !== null){
+        if (readConfigError !== null) {
           console.error('Unable to read configuration file.');
           console.error(readConfigError);
           process.exit(1);
         }
-        try{
+        try {
           config = JSON.parse(data);
           imageDiff = new ImageDiff({
             gmPath: config.gmPath,
             logPath: config.logPath
           });
           differenceTheshold = parseFloat(config.differenceTheshold);
-          if((config.abnormalImagesDirectoryName !== undefined) ||
-            (config.abnormalImagesDirectoryName !== null)){
+          if ((config.abnormalImagesDirectoryName !== undefined) ||
+            (config.abnormalImagesDirectoryName !== null)) {
             abnormalImagesDirectoryName = config.abnormalImagesDirectoryName;
           }
           process.nextTick(startDiff);
-        }catch(parseConfigError){
+        } catch (parseConfigError) {
           console.error('Unable to parse configuration file.');
           console.error(parseConfigError);
           process.exit(1);
@@ -85,35 +85,35 @@
     );
   };
 
-  startDiff = function(){
-    fs.readdir(imagesDirectoryPath, function(readDirError, files){
+  startDiff = function () {
+    fs.readdir(imagesDirectoryPath, function (readDirError, files) {
       var currentFileIndex = 1;
-      if(readDirError !== null){
+      if (readDirError !== null) {
         console.error('Unable to read images directory.');
         console.error(readDirError);
         process.exit(1);
       }
-      if(files.length === 0){
+      if (files.length === 0) {
         console.log('The directory contains no images.');
         process.exit(0);
       }
-      if(files.length === 1){
+      if (files.length === 1) {
         console.log('The directory contains 1 image file only.');
         process.exit(0);
       }
-      imageDiff.on('error', function(imageDiffError){
+      imageDiff.on('error', function (imageDiffError) {
         console.error('Unable to compare images.');
         console.error(imageDiffError);
         process.exit(1);
       });
-      imageDiff.on('done', function(difference){
+      imageDiff.on('done', function (difference) {
         var message = null;
-        if(difference > differenceTheshold){
+        if (difference > differenceTheshold) {
           message = 'WARN';
           // Add both images are considered as abnormal.
           abnormalImages.push(files[currentFileIndex - 1]);
           abnormalImages.push(files[currentFileIndex]);
-        }else{
+        } else {
           message = 'OKAY';
         }
         console.log(util.format(
@@ -124,19 +124,19 @@
           difference
         ));
         currentFileIndex += 1;
-        if(currentFileIndex === files.length){
+        if (currentFileIndex === files.length) {
           currentDate = new Date();
           console.log(util.format(
             'Completed at %s.',
             currentDate.toISOString()
           ));
-          if((abnormalImages.length !== 0) &&
-            (abnormalImagesDirectoryName !== null)){
+          if ((abnormalImages.length !== 0) &&
+            (abnormalImagesDirectoryName !== null)) {
             copyAbnormalImages();
-          }else{
+          } else {
             process.exit(0);
           }
-        }else{
+        } else {
           imageDiff.diff(
             buildImageFilePath(files[currentFileIndex - 1]),
             buildImageFilePath(files[currentFileIndex])
@@ -152,30 +152,30 @@
     });
   };
 
-  copyAbnormalImages = function(){
+  copyAbnormalImages = function () {
     var files = [],
       copiedFiles = 0;
     // Filter duplicated files.
-    abnormalImages.forEach(function(abnormalImage){
-      if(files.indexOf(abnormalImage) < 0){
+    abnormalImages.forEach(function (abnormalImage) {
+      if (files.indexOf(abnormalImage) < 0) {
         files.push(abnormalImage);
       }
     });
     // Copy abnormal image files.
     currentDate = new Date();
     console.log(util.format('Copy start at %s.', currentDate.toISOString()));
-    fs.mkdir(buildAbnormalImagesDirectoryPath(), function(mkdirError){
-      if(mkdirError !== null){
+    fs.mkdir(buildAbnormalImagesDirectoryPath(), function (mkdirError) {
+      if (mkdirError !== null) {
         console.error('Unable to create directory for abnormal images.');
         console.error(mkdirError);
         process.exit(1);
       }
-      files.forEach(function(file){
+      files.forEach(function (file) {
         var readStream = fs.createReadStream(buildImageFilePath(file)),
           writeStream = fs.createWriteStream(buildAbnormalImageFilePath(file));
-        writeStream.on('finish', function(){
+        writeStream.on('finish', function () {
           copiedFiles += 1;
-          if(copiedFiles === files.length){
+          if (copiedFiles === files.length) {
             currentDate = new Date();
             console.log(util.format(
               'Copy completed at %s.',
@@ -189,7 +189,7 @@
     });
   };
 
-  if(process.argv.length !== 4){
+  if (process.argv.length !== 4) {
     printUsage();
     process.exit(1);
   }
