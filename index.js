@@ -129,12 +129,16 @@
   };
 
   /**
-   * Starts computing the differences among images. Given images A0, A1, A2 and
-   * A3, differences of A0 and A1, A1 and A2, A2 and A3 will be computed.
+   * Starts computing the differences among images. Given images image0, image1,
+   * image2, and image3, differences of the following will be computed:
+   *
+   * image0 and image1
+   * image1 and image2
+   * image2 and image3
    */
   startDiff = function () {
     fs.readdir(imagesDirectoryPath, function (readDirError, files) {
-      var currentFileIndex = 1;
+      var fullPathFiles = [];
       if (readDirError !== null) {
         console.error('Unable to read images directory.');
         console.error(readDirError);
@@ -153,49 +157,50 @@
         console.error(imagesDiffError);
         process.exit(1);
       });
-      imagesDiff.on('done', function (difference) {
-        var message = null;
-        if (difference > differenceThreshold) {
-          message = 'WARN';
-          // Both images are considered as abnormal.
-          abnormalImages.push(files[currentFileIndex - 1]);
-          abnormalImages.push(files[currentFileIndex]);
-        } else {
-          message = 'OKAY';
-        }
+      imagesDiff.on('doneAll', function (differences) {
+        currentDate = new Date();
         console.log(util.format(
-          '%s, %s: %s, %d',
-          files[currentFileIndex - 1],
-          files[currentFileIndex],
-          message,
-          difference
+          'Completed at %s.',
+          currentDate.toISOString()
         ));
-        currentFileIndex += 1;
-        if (currentFileIndex === files.length) {
-          currentDate = new Date();
-          console.log(util.format(
-            'Completed at %s.',
-            currentDate.toISOString()
-          ));
-          if ((abnormalImages.length !== 0) &&
-            (abnormalImagesDirectoryName !== null)) {
-            copyAbnormalImages();
-          } else {
-            process.exit(0);
+        files.forEach(function (currentFile, index) {
+          var previousFile = null,
+            difference = null,
+            message = null;
+          if (index === 0) {
+            return;
           }
+          difference = differences[index - 1];
+          previousFile = files[index - 1];
+          if (difference > differenceThreshold) {
+            message = 'WARN';
+            // Both images are considered as abnormal.
+            abnormalImages.push(previousFile);
+            abnormalImages.push(currentFile);
+          } else {
+            message = 'OKAY';
+          }
+          console.log(util.format(
+            '%s, %s: %s, %d',
+            previousFile,
+            currentFile,
+            message,
+            difference
+          ));
+        });
+        if ((abnormalImages.length !== 0) &&
+          (abnormalImagesDirectoryName !== null)) {
+          copyAbnormalImages();
         } else {
-          imagesDiff.diff(
-            buildImageFilePath(files[currentFileIndex - 1]),
-            buildImageFilePath(files[currentFileIndex])
-          );
+          process.exit(0);
         }
+      });
+      files.forEach(function (file) {
+        fullPathFiles.push(buildImageFilePath(file));
       });
       currentDate = new Date();
       console.log(util.format('Start at %s.', currentDate.toISOString()));
-      imagesDiff.diff(
-        buildImageFilePath(files[currentFileIndex - 1]),
-        buildImageFilePath(files[currentFileIndex])
-      );
+      imagesDiff.diffAll(fullPathFiles);
     });
   };
 
