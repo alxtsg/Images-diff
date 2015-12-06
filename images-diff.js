@@ -2,6 +2,8 @@
  * Library for finding differences between 2 images.
  *
  * @author Alex Tsang <alextsang@live.com>
+ *
+ * @license BSD-3-Clause
  */
 module.exports = (function () {
 

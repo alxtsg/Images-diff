@@ -2,6 +2,8 @@
  * Main program.
  *
  * @author Alex Tsang <alextsang@live.com>
+ *
+ * @license BSD-3-Clause
  */
 (function () {
 
