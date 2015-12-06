@@ -6,8 +6,8 @@ Compares images in a directory in sequential manner and report the differences.
 
 ## Requirements ##
 
-* io.js (`>=3.1.0`).
-* GraphicsMagick (`>=1.3.21`).
+* Node.js (`>=4.2.2`).
+* GraphicsMagick (`>=1.3.23`).
 
 ## Installation ##
 
@@ -33,16 +33,16 @@ You will get output similar to the following:
 
 > Start at 2015-09-06T16:05:22.282Z.
 
+> Completed at 2015-09-06T16:20:28.192Z.
+
 > 20150518-005330.jpeg, 20150518-005335.jpeg: WARN, 0.0031047677
 
 > (A lot of lines are omitted.)
 
 > 20150518-005405.jpeg, 20150518-005410.jpeg: OKAY, 0.0000980678
 
-> Completed at 2015-09-06T16:20:28.192Z.
-
 The output above shows that `20150518-005335.jpeg` differs very much from `20150518-005330.jpeg`, thus `WARN`; `20150518-005410.jpeg` looks similar to `20150518-005405.jpeg`, thus `OKAY`.
 
 ## License ##
 
-This project is for private use only.
+[The BSD 3-Clause License](http://opensource.org/licenses/BSD-3-Clause)
