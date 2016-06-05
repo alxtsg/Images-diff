@@ -6,8 +6,8 @@ Compares images in a directory in sequential manner and report the differences.
 
 ## Requirements ##
 
-* Node.js (`>=4.2.2`).
-* GraphicsMagick (`>=1.3.23`).
+* Node.js (`>=4.4.5`).
+* GraphicsMagick (`>=1.3.24`).
 
 ## Installation ##
 
