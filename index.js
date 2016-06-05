@@ -102,6 +102,9 @@
       );
     }
 
+    /**
+     * Parses configuration files.
+     */
     parseConfig () {
       fs.readFile(
         CONFIG_FILE_PATH,
