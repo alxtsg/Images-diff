@@ -9,43 +9,57 @@
 
   'use strict';
 
-  var ImagesDiff = require('./images-diff.js'),
+  const ImagesDiff = require('./images-diff.js'),
+    Copier = require('./copier.js'),
 
+    EventEmitter = require('events').EventEmitter,
     fs = require('fs'),
     path = require('path'),
     process = require('process'),
     util = require('util'),
 
+    EVENT_ERROR_READ_CONFIG = 'EVENT_ERROR_READ_CONFIG',
+    EVENT_ERROR_PARSE_CONFIG = 'EVENT_ERROR_PARSE_CONFIG',
+    EVENT_ERROR_READ_IMAGES_DIR = 'EVENT_ERROR_READ_IMAGES_DIR',
+    EVENT_ERROR_NO_IMAGES = 'EVENT_ERROR_NO_IMAGES',
+    EVENT_ERROR_ONE_IMAGE = 'EVENT_ERROR_ONE_IMAGE',
+    EVENT_ERROR_IMAGEDIFF_ERROR = 'EVENT_ERROR_IMAGEDIFF_ERROR',
+    EVENT_ERROR_CREATE_ABNORMAL_IMAGES_DIR =
+      'EVENT_ERROR_CREATE_ABNORMAL_IMAGES_DIR',
+    EVENT_APPLICATION_READY = 'EVENT_APPLICATION_READY',
+    EVENT_DIFF_COMPLETE = 'EVENT_DIFF_COMPLETE',
+    EVENT_COPY_ABNORMAL_IMAGES_DONE = 'EVENT_COPY_ABNORMAL_IMAGES_DONE',
+
     // Configuration file path.
     CONFIG_FILE_PATH = path.join(
       __dirname,
       'config.json'
-    ),
+    );
 
-    // Images directory path.
-    imagesDirectoryPath = null,
-
-    // ImagesDiff instance.
-    imagesDiff = null,
-
-    // Differences threshold.
-    differenceThreshold = 0,
-
-    // Current date.
-    currentDate = null,
-
-    // An array of paths of abnormal images.
-    abnormalImages = [],
-
-    // Directory name of abnormal images.
-    abnormalImagesDirectoryName = null,
+  /**
+   * Main application.
+   *
+   * @extends EventEmitter
+   */
+  class Application extends EventEmitter {
 
     /**
-     * Prints program usage.
+     * Constructor.
+     *
+     * @class
+     * @constructor
+     *
+     * @param {String} imagesDirectoryPath Path of directory containing images
+     *                                     for comparison.
      */
-    printUsage = function () {
-      console.error('Usage: node index.js <images-directory>');
-    },
+    constructor (imagesDirectoryPath) {
+      super();
+      this.imagesDiff = null;
+      this.differenceThreshold = null;
+      this.imagesDirectoryPath = imagesDirectoryPath;
+      this.abnormalImagesDirectoryName = null;
+      this.abnormalImages = [];
+    }
 
     /**
      * Builds file path.
@@ -54,24 +68,24 @@
      *
      * @return {String} Path of file.
      */
-    buildImageFilePath = function (fileName) {
+    buildImageFilePath (fileName) {
       return path.join(
-        imagesDirectoryPath,
+        this.imagesDirectoryPath,
         fileName
       );
-    },
+    }
 
     /**
      * Builds directory path of abnormal images.
      *
      * @return {String} Directory path of abnormal images.
      */
-    buildAbnormalImagesDirectoryPath = function () {
+    buildAbnormalImagesDirectoryPath () {
       return path.join(
-        imagesDirectoryPath,
-        abnormalImagesDirectoryName
+        this.imagesDirectoryPath,
+        this.abnormalImagesDirectoryName
       );
-    },
+    }
 
     /**
      * Builds file path of an abnormal image.
@@ -80,177 +94,202 @@
      *
      * @return {String} Path of the abnormal image.
      */
-    buildAbnormalImageFilePath = function (fileName) {
+    buildAbnormalImageFilePath (fileName) {
       return path.join(
-        imagesDirectoryPath,
-        abnormalImagesDirectoryName,
+        this.imagesDirectoryPath,
+        this.abnormalImagesDirectoryName,
         fileName
       );
-    },
+    }
 
-    // Placeholders of functions.
-    parseConfig = null,
-    startDiff = null,
-    copyAbnormalImages = null;
-
-  /**
-   * Parses configuration file.
-   */
-  parseConfig = function () {
-    fs.readFile(
-      CONFIG_FILE_PATH,
-      {
-        encoding: 'utf8'
-      },
-      function (readConfigError, data) {
-        var config = null;
-        if (readConfigError !== null) {
-          console.error('Unable to read configuration file.');
-          console.error(readConfigError);
-          process.exit(1);
-        }
-        try {
-          config = JSON.parse(data);
-          imagesDiff = new ImagesDiff({
-            gmPath: config.gmPath,
-            logPath: config.logPath
-          });
-          differenceThreshold = parseFloat(config.differenceThreshold);
-          if ((config.abnormalImagesDirectoryName !== undefined) ||
-            (config.abnormalImagesDirectoryName !== null)) {
-            abnormalImagesDirectoryName = config.abnormalImagesDirectoryName;
-          }
-          process.nextTick(startDiff);
-        } catch (parseConfigError) {
-          console.error('Unable to parse configuration file.');
-          console.error(parseConfigError);
-          process.exit(1);
-        }
-      }
-    );
-  };
-
-  /**
-   * Starts computing the differences among images. Given images image0, image1,
-   * image2, and image3, differences of the following will be computed:
-   *
-   * image0 and image1
-   * image1 and image2
-   * image2 and image3
-   */
-  startDiff = function () {
-    fs.readdir(imagesDirectoryPath, function (readDirError, files) {
-      var fullPathFiles = [];
-      if (readDirError !== null) {
-        console.error('Unable to read images directory.');
-        console.error(readDirError);
-        process.exit(1);
-      }
-      if (files.length === 0) {
-        console.log('The directory contains no images.');
-        process.exit(0);
-      }
-      if (files.length === 1) {
-        console.log('The directory contains 1 image file only.');
-        process.exit(0);
-      }
-      imagesDiff.on('error', function (imagesDiffError) {
-        console.error('Unable to compare images.');
-        console.error(imagesDiffError);
-        process.exit(1);
-      });
-      imagesDiff.on('doneAll', function (differences) {
-        currentDate = new Date();
-        console.log(util.format(
-          'Completed at %s.',
-          currentDate.toISOString()
-        ));
-        files.forEach(function (currentFile, index) {
-          var previousFile = null,
-            difference = null,
-            message = null;
-          if (index === 0) {
+    parseConfig () {
+      fs.readFile(
+        CONFIG_FILE_PATH,
+        {
+          encoding: 'utf8'
+        },
+        (readConfigError, data) => {
+          if (readConfigError !== null) {
+            this.emit(EVENT_ERROR_READ_CONFIG, readConfigError);
             return;
           }
-          difference = differences[index - 1];
-          previousFile = files[index - 1];
-          if (difference > differenceThreshold) {
-            message = 'WARN';
-            // Both images are considered as abnormal.
-            abnormalImages.push(previousFile);
-            abnormalImages.push(currentFile);
-          } else {
-            message = 'OKAY';
+          try {
+            let config = JSON.parse(data);
+            this.imagesDiff = new ImagesDiff({
+              gmPath: config.gmPath
+            });
+            this.differenceThreshold = parseFloat(config.differenceThreshold);
+            if ((config.abnormalImagesDirectoryName !== undefined) &&
+              (config.abnormalImagesDirectoryName !== null)) {
+              this.abnormalImagesDirectoryName =
+                config.abnormalImagesDirectoryName;
+            }
+            this.emit(EVENT_APPLICATION_READY);
+          } catch (parseConfigError) {
+            this.emit(EVENT_ERROR_PARSE_CONFIG, parseConfigError);
           }
-          console.log(util.format(
-            '%s, %s: %s, %d',
-            previousFile,
-            currentFile,
-            message,
-            difference
-          ));
-        });
-        if ((abnormalImages.length !== 0) &&
-          (abnormalImagesDirectoryName !== null)) {
-          copyAbnormalImages();
-        } else {
-          process.exit(0);
         }
-      });
-      files.forEach(function (file) {
-        fullPathFiles.push(buildImageFilePath(file));
-      });
-      currentDate = new Date();
-      console.log(util.format('Start at %s.', currentDate.toISOString()));
-      imagesDiff.diffAll(fullPathFiles);
-    });
-  };
+      );
+    }
 
-  /**
-   * Copies abnormal images to the abnormal images directory.
-   */
-  copyAbnormalImages = function () {
-    var files = [];
-    // Filter duplicated files.
-    abnormalImages.forEach(function (abnormalImage) {
-      if (files.indexOf(abnormalImage) < 0) {
-        files.push(abnormalImage);
-      }
-    });
-    // Copy abnormal image files.
-    currentDate = new Date();
-    console.log(util.format('Copy start at %s.', currentDate.toISOString()));
-    fs.mkdir(buildAbnormalImagesDirectoryPath(), function (mkdirError) {
-      if (mkdirError !== null) {
-        console.error('Unable to create directory for abnormal images.');
-        console.error(mkdirError);
-        process.exit(1);
-      }
-      files.forEach(function (file, index) {
-        var readStream = fs.createReadStream(buildImageFilePath(file)),
-          writeStream = fs.createWriteStream(buildAbnormalImageFilePath(file));
-        writeStream.on('finish', function () {
-          if (index === (files.length - 1)) {
-            currentDate = new Date();
+    /**
+     * Computes the differences among images. Given images image0, image1,
+     * image2, and image3, differences of the following will be computed:
+     *
+     * image0 and image1
+     * image1 and image2
+     * image2 and image3
+     */
+    diffImages () {
+      fs.readdir(this.imagesDirectoryPath, (readDirError, files) => {
+        let fullPathFiles = [];
+        if (readDirError !== null) {
+          this.emit(EVENT_ERROR_READ_IMAGES_DIR, readDirError);
+          return;
+        }
+        if (files.length === 0) {
+          this.emit(EVENT_ERROR_NO_IMAGES);
+          return;
+        }
+        if (files.length === 1) {
+          this.emit(EVENT_ERROR_ONE_IMAGE);
+          return;
+        }
+        this.imagesDiff.on('error', (imagesDiffError) => {
+          this.emit(EVENT_ERROR_IMAGEDIFF_ERROR, imagesDiffError);
+          return;
+        });
+        this.imagesDiff.on('doneAll', (differences) => {
+          console.log(util.format(
+            'Completed at %s.',
+            (new Date()).toISOString()
+          ));
+          files.forEach((currentFile, index) => {
+            let previousFile = null,
+              difference = null,
+              message = null;
+            if (index === 0) {
+              return;
+            }
+            difference = differences[index - 1];
+            previousFile = files[index - 1];
+            if (difference > this.differenceThreshold) {
+              message = 'WARN';
+              // Both images are considered as abnormal.
+              if (this.abnormalImages.indexOf(previousFile) < 0) {
+                this.abnormalImages.push(previousFile);
+              }
+              if (this.abnormalImages.indexOf(currentFile) < 0) {
+                this.abnormalImages.push(currentFile);
+              }
+            } else {
+              message = 'OKAY';
+            }
+            console.log(util.format(
+              '%s, %s: %s, %d',
+              previousFile,
+              currentFile,
+              message,
+              difference
+            ));
+          });
+          this.emit(EVENT_DIFF_COMPLETE);
+        });
+        files.forEach((file) => {
+          fullPathFiles.push(this.buildImageFilePath(file));
+        });
+        console.log(util.format('Start at %s.', (new Date()).toISOString()));
+        this.imagesDiff.diffAll(fullPathFiles);
+      });
+    }
+
+    /**
+     * Copies abnormal images to the abnormal images directory.
+     */
+    copyAbnormalImages () {
+      // Copy abnormal image files.
+      console.log(util.format('Copy start at %s.', (new Date()).toISOString()));
+      fs.mkdir(this.buildAbnormalImagesDirectoryPath(), (mkdirError) => {
+        if (mkdirError !== null) {
+          this.emit(EVENT_ERROR_CREATE_ABNORMAL_IMAGES_DIR, mkdirError);
+          return;
+        }
+        let index = 0,
+          copier = new Copier();
+        copier.on('done', () => {
+          if (index === (this.abnormalImages.length - 1)) {
             console.log(util.format(
               'Copy completed at %s.',
-              currentDate.toISOString()
-            ));
-            process.exit(0);
+              (new Date()).toISOString())
+            );
+            this.emit(EVENT_COPY_ABNORMAL_IMAGES_DONE);
           }
+          index += 1;
+          copier.copy(
+            this.buildImageFilePath(this.abnormalImages[index]),
+            this.buildAbnormalImageFilePath(this.abnormalImages[index])
+          );
         });
-        readStream.pipe(writeStream);
+        copier.copy(
+          this.buildImageFilePath(this.abnormalImages[index]),
+          this.buildAbnormalImageFilePath(this.abnormalImages[index])
+        );
       });
-    });
-  };
+    }
+  }
 
-  // 4 arguments are expected.
+  /**
+   * Prints program usage.
+   */
+  function printUsage() {
+    console.error('Usage: node index.js <images-directory>');
+  }
+
+  // Expect 3 arguments.
   if (process.argv.length !== 3) {
     printUsage();
     process.exit(1);
   }
 
-  imagesDirectoryPath = process.argv[2];
-
-  parseConfig();
+  let application = new Application(process.argv[2]);
+  application.on(EVENT_ERROR_READ_CONFIG, (error) => {
+    console.error('Unable to read configuration file.');
+    console.error(error);
+    process.exit(1);
+  }).on(EVENT_ERROR_PARSE_CONFIG, (error) => {
+    console.error('Unable to parse configuration file.');
+    console.error(error);
+    process.exit(1);
+  }).on(EVENT_ERROR_READ_IMAGES_DIR, (error) => {
+    console.error('Unable to read images directory.');
+    console.error(error);
+    process.exit(1);
+  }).on(EVENT_ERROR_NO_IMAGES, () => {
+    console.log('The directory contains no images.');
+    process.exit(0);
+  }).on(EVENT_ERROR_ONE_IMAGE, () => {
+    console.log('The directory contains 1 image file only.');
+    process.exit(0);
+  }).on(EVENT_ERROR_IMAGEDIFF_ERROR, (error) => {
+    console.error('Unable to compare images.');
+    console.error(error);
+    process.exit(1);
+  }).on(EVENT_ERROR_CREATE_ABNORMAL_IMAGES_DIR, (error) => {
+    console.error('Unable to create directory for abnormal images.');
+    console.error(error);
+    process.exit(1);
+  }).on(EVENT_APPLICATION_READY, (error) => {
+    application.diffImages();
+  }).on(EVENT_DIFF_COMPLETE, () => {
+    if (application.abnormalImages.length === 0) {
+      process.exit(0);
+    }
+    if (application.abnormalImagesDirectoryName === null) {
+      process.exit(0);
+    }
+    application.copyAbnormalImages();
+  }).on(EVENT_COPY_ABNORMAL_IMAGES_DONE, () => {
+    process.exit(0)
+  });
+  application.parseConfig();
 }());
