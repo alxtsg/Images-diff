@@ -1,5 +1,5 @@
 /**
- * Library for finding differences between 2 images.
+ * Module for finding differences among images
  *
  * @author Alex Tsang <alextsang@live.com>
  *
