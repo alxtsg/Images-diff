@@ -41,7 +41,7 @@ You will get output similar to the following:
 
 > 20150518-005405.jpeg, 20150518-005410.jpeg: OKAY, 0.0000980678
 
-The output above shows that `20150518-005335.jpeg` differs very much from `20150518-005330.jpeg`, thus `WARN`; `20150518-005410.jpeg` looks similar to `20150518-005405.jpeg`, thus `OKAY`.
+The output above shows that `20150518-005335.jpeg` differs very much from `20150518-005330.jpeg` (results `WARN`); `20150518-005410.jpeg` looks similar to `20150518-005405.jpeg` (results `OKAY`).
 
 ## License ##
 
