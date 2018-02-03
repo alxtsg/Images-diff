@@ -1,11 +1,8 @@
 {
   "name": "images-diff",
   "version": "2.1.2",
-  "description": "Compares images in a directory in sequential manner and report the differences.",
+  "description": "Compare images in batch and report the differences.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@bitbucket.org/alxtsg/images-diff.git"
