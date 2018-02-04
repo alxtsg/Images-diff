@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "Compare images in batch and report the differences.",
   "main": "index.js",
   "repository": {
