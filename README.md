@@ -24,10 +24,10 @@ The configuration file `config.json` controls the following:
 * `differenceThreshold`: The maximum mean squared error (MSE) that can be tolerated for each comparison.
 * `abnormalImagesDirectory`: The directory where abnormal images will be copied into. The directory will be created automatically under the directory which containing images for analysis. If it is not specified, abnormal images will not be copied.
 * `crop`: If set to `null`, the images will not be cropped before comparsion. To crop the images, specify the following:
-  *  `width`: Width of the cropped image.
-  *  `height`: Height of the cropped image.
-  *  `offsetX`: Offset of location from the left of the image.
-  *  `offsetY`: Offset of location from the top of the image.
+    *  `width`: Width of the cropped image.
+    *  `height`: Height of the cropped image.
+    *  `offsetX`: Offset of location from the left of the image.
+    *  `offsetY`: Offset of location from the top of the image.
 
 ## Examples ##
 
