@@ -25,7 +25,20 @@ const CROPPED_FILE_B = 'file-b';
 const COMPARISON_METRIC = 'mse';
 const COMPARISON_RESULT_REGEX = /Total: (\d+\.?\d*)/m;
 
-function generateCropImageCommand(originFile, outputFile, cropOption) {
+/**
+ * Generates image cropping command.
+ *
+ * @param {string} originFile Filename of original file.
+ * @param {string} outputFile Filename of output file.
+ * @param {object} cropOption Image cropping option.
+ * @param {number} cropOption.width Cropped image width.
+ * @param {number} cropOption.height Cropped image height.
+ * @param {number} cropOption.offsetX Offset (from left) of cropped image.
+ * @param {number} cropOption.offsetY Offset (from top) of cropped image.
+ *
+ * @returns {string} The command.
+ */
+const generateCropImageCommand = (originFile, outputFile, cropOption) => {
   const width = cropOption.width;
   const height = cropOption.height;
   const offsetX = cropOption.offsetX;
@@ -38,9 +51,18 @@ function generateCropImageCommand(originFile, outputFile, cropOption) {
     `"${outputFile}"`,
     '\n'
   ].join(' ');
-}
+};
 
-function generateCompareImagesCommand(fileA, fileB, comparisonMetric) {
+/**
+ * Generates image comparison command.
+ *
+ * @param {string} fileA Filename of reference file.
+ * @param {string} fileB Filename of file to be compared with.
+ * @param {string} comparisonMetric Comparison metric.
+ *
+ * @returns {string} The command.
+ */
+const generateCompareImagesCommand = (fileA, fileB, comparisonMetric) => {
   return [
     'compare',
     '-metric',
@@ -49,9 +71,19 @@ function generateCompareImagesCommand(fileA, fileB, comparisonMetric) {
     `"${fileB}"`,
     '\n'
   ].join(' ');
-}
+};
 
-async function readConfigFile(configFilePath) {
+/**
+ * Reads configuration file.
+ *
+ * @async
+ *
+ * @param {string} configFilePath Configuration file path.
+ *
+ * @returns {Promise} Resolves with the configuration object, or rejects with an
+ *                    Error.
+ */
+const readConfigFile = async (configFilePath) => {
   return new Promise((resolve, reject) => {
     fs.readFile(
       configFilePath,
@@ -74,9 +106,17 @@ async function readConfigFile(configFilePath) {
       }
     );
   });
-}
+};
 
-async function createTempDirectory() {
+/**
+ * Creates a temporary directory.
+ *
+ * @async
+ *
+ * @returns {Promise} Resolves with the temporary directory path, or rejects
+ *                    with an Error.
+ */
+const createTempDirectory = async () => {
   return new Promise((resolve, reject) => {
     const tempDirectory = path.join(os.tmpdir(), path.sep);
     fs.mkdtemp(tempDirectory, (error, directory) => {
@@ -88,9 +128,19 @@ async function createTempDirectory() {
       resolve(directory);
     });
   });
-}
+};
 
-async function listImages(imagesDirectory) {
+/**
+ * Gets full paths of images in the specified directory.
+ *
+ * @async
+ *
+ * @param {string} imagesDirectory Images directory.
+ *
+ * @returns {Promise} Resolves with an Array of file paths, or rejects with an
+ *                    Error.
+ */
+const listImages = async (imagesDirectory) => {
   return new Promise((resolve, reject) => {
     fs.readdir(imagesDirectory, (error, files) => {
       if (error !== null) {
@@ -120,9 +170,20 @@ async function listImages(imagesDirectory) {
       resolve(fullPathFiles);
     });
   });
-}
+};
 
-async function runBatchCommands(gmPath, commands) {
+/**
+ * Runs batch of GraphicsMagick commands (of cropping and comparing images).
+ *
+ * @async
+ *
+ * @param {string} gmPath Path of GraphicsMagick executable.
+ * @param {string} commands An Array of commands.
+ *
+ * @returns {Promise} Resolves with an Array of image difference values, or
+ *                    rejects with an Error.
+ */
+const runBatchCommands = async (gmPath, commands) => {
   return new Promise((resolve, reject) => {
     const gmBatchArguments = [
       'batch',
@@ -138,9 +199,9 @@ async function runBatchCommands(gmPath, commands) {
       if (code !== 0) {
         const error = new Error(`GraphicsMagick exited with code ${code}.`);
         reject(error);
-      } else {
-        resolve(differences);
+        return;
       }
+      resolve(differences);
     });
     gm.stdout.on('data', (data) => {
       const output = Buffer.from(data, 'utf8').toString();
@@ -152,9 +213,18 @@ async function runBatchCommands(gmPath, commands) {
     gm.stdin.write(commands.join(''));
     gm.stdin.end();
   });
-}
+};
 
-async function deleteCroppedFiles(tempDirectory) {
+/**
+ * Deletes the cropped images in the specified directory.
+ *
+ * @async
+ *
+ * @param {string} tempDirectory Temporary directory to be deleted.
+ *
+ * @returns {Promise} Resolves without a value, or rejects with an Error.
+ */
+const deleteCroppedFiles = async (tempDirectory) => {
   const deleteCroppedFileA = new Promise((resolve, reject) => {
     fs.unlink(path.join(tempDirectory, CROPPED_FILE_A), (error) => {
       if (error !== null) {
@@ -179,9 +249,18 @@ async function deleteCroppedFiles(tempDirectory) {
     deleteCroppedFileA,
     deleteCroppedFileB
   ]);
-}
+};
 
-async function deleteTempDirectory(directory) {
+/**
+ * Deletes the specified temporary directory.
+ *
+ * @async
+ *
+ * @param {string} directory Directory path.
+ *
+ * @returns {Promise} Resolves without a value or rejects with an Error.
+ */
+const deleteTempDirectory = async (directory) => {
   return new Promise((resolve, reject) => {
     fs.rmdir(directory, (error) => {
       if (error !== null) {
@@ -192,9 +271,18 @@ async function deleteTempDirectory(directory) {
       resolve();
     });
   });
-}
+};
 
-async function createAbnormalImagesDirectory(directory) {
+/**
+ * Creates a directory for abnormal images.
+ *
+ * @async
+ *
+ * @param {string} directory Path of directory.
+ *
+ * @returns {Promise} Resolves without a value, or rejects with an Error.
+ */
+const createAbnormalImagesDirectory = async (directory) => {
   return new Promise((resolve, reject) => {
     fs.mkdir(directory, (error) => {
       if (error !== null) {
@@ -205,9 +293,19 @@ async function createAbnormalImagesDirectory(directory) {
       resolve();
     });
   });
-}
+};
 
-async function copyAbnormalImage(source, destination) {
+/**
+ * Copies the abnormal image.
+ *
+ * @async
+ *
+ * @param {string} source Path of file to copy from.
+ * @param {string} destination Path of file to copy to.
+ *
+ * @returns {Promise} Resolves without a value, or rejects with an Error.
+ */
+const copyAbnormalImage = async (source, destination) => {
   return new Promise((resolve, reject) => {
     fs.copyFile(source, destination, (error) => {
       if (error) {
@@ -218,9 +316,12 @@ async function copyAbnormalImage(source, destination) {
       resolve();
     });
   });
-}
+};
 
-async function init() {
+/**
+ * Main function.
+ */
+const main = async () => {
   // The 1st argument is the Node.js executable.
   // The 2nd argument is this JavaScript file.
   // The 3rd argument is the images directory.
@@ -348,6 +449,6 @@ async function init() {
   } catch (error) {
     console.error(error.message);
   }
-}
+};
 
-init();
+main();
