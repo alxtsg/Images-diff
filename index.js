@@ -143,7 +143,7 @@ async function runBatchCommands(gmPath, commands) {
       }
     });
     gm.stdout.on('data', (data) => {
-      const output = new Buffer(data, 'utf8').toString();
+      const output = Buffer.from(data, 'utf8').toString();
       const difference = COMPARISON_RESULT_REGEX.exec(output);
       if (difference !== null) {
         differences.push(parseFloat(difference[1]));
