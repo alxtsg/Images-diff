@@ -38,11 +38,17 @@ Assuming the directory containing images for comparisons is `/path/to/images`, e
 You will get output similar to the following:
 
 > Start comparing images at 2018-02-03T20:40:12.179Z.
+
 > Completed comparing images at 2018-02-03T20:58:50.500Z.
+
 > /path/to/images/20180201-002618.jpeg, /path/to/images/20180201-002623.jpeg, 0.1477564507: WARN.
+
 > /path/to/images/20180201-002644.jpeg, /path/to/images/20180201-002649.jpeg, 0.0002248027: OKAY.
+
 > (A lot of similar lines...)
+
 > Start copying images at 2018-02-03T20:58:51.255Z.
+
 > Completed copying images at 2018-02-03T20:58:51.452Z.
 
 The output above shows:
