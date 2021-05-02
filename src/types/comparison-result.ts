@@ -1,16 +1,16 @@
 export default interface ComparisonResult {
   /**
-   * The original image.
+   * The filename of the original image.
    */
   original: string;
 
   /**
-   * The altered image.
+   * The filename of the altered image.
    */
   altered: string;
 
   /**
-   * Differences.
+   * Differences between the original image and the altered image.
    */
   difference: number;
 }

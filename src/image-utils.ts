@@ -4,7 +4,6 @@ import path from 'path';
 import ComparisonResult from './types/comparison-result';
 import config from './config';
 import CropConfig from './types/crop-config';
-import * as fsUtils from './fs-utils';
 
 const COMPARISON_METRIC: string = 'mse';
 const COMPARISON_RESULT_REGEX: RegExp = /Total: (\d+\.?\d*)/gm;
@@ -65,12 +64,11 @@ export const cropImages = async (cropConfig: CropConfig, outputDir: string, file
 /**
  * Compares images.
  *
- * @param imagesDir Absolute path of directory of images to be compared.
+ * @param files Absolute paths of images to be compared.
  *
  * @returns Resolves with an array of comparison results.
  */
-export const compareImages = async (imagesDir: string): Promise<ComparisonResult[]> => {
-  const files: string[] = await fsUtils.getFiles(imagesDir);
+export const compareImages = async (files: string[]): Promise<ComparisonResult[]> => {
   const commands: string[] = files.map((file, index) => {
       if (index === 0) {
         return '';
@@ -94,8 +92,8 @@ export const compareImages = async (imagesDir: string): Promise<ComparisonResult
   for (const match of matches) {
     const [ _, value ] = match;
     results.push({
-      original: files[index],
-      altered: files[index + 1],
+      original: path.basename(files[index]),
+      altered: path.basename(files[index + 1]),
       difference: Number(value)
     });
     index += 1;

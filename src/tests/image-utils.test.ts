@@ -33,8 +33,9 @@ describe('Image utilities', async (): Promise<void> => {
     const files: string[] = await fsUtils.getFiles(IMAGES_DIR);
     const outputDir: string = await fsUtils.createTempDirectory();
     await imageUtils.cropImages(CROP_CONFIG, outputDir, files);
+    const croppedImages: string[] = await fsUtils.getFiles(outputDir);
     await assert.doesNotReject(async (): Promise<void> => {
-      const results: ComparisonResult[] = await imageUtils.compareImages(outputDir);
+      const results: ComparisonResult[] = await imageUtils.compareImages(croppedImages);
       assert.strictEqual(results.length, (files.length - 1));
       const filteredResults: ComparisonResult[] = results.filter((results) => (results.difference > 0));
       assert.strictEqual(filteredResults.length, 1);
