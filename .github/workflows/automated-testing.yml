@@ -1,0 +1,42 @@
+name: Automated testing
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+
+    # Install required software packages.
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install graphicsmagick
+
+    # Build
+    - name: Install dependencies (build)
+      run: npm clean-install
+    - name: Clean environment
+      run: npm run clean
+    - name: Build project for testing
+      run: npm run build-test
+
+    # Test
+    - name: Install dependencies (test)
+      run: npm clean-install
+      working-directory: ./dist
+    - name: Run test cases
+      run: npm run test
+      working-directory: ./dist
