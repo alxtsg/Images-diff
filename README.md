@@ -2,61 +2,76 @@
 
 ## Description ##
 
-Compare images in batch and report the differences.
+Compare images and report the differences.
+
+Given images `a.jpeg`, `b.jpeg`, and `c.jpeg`, the program performs the
+following comparisons:
+
+* `a.jpeg` and `b.jpeg`
+* `b.jpeg` and `c.jpeg`
+
+The differences are computed using MSE (mean error squared) as the metric.
 
 ## Requirements ##
 
-* Node.js (`>=10.15.3`).
-* GraphicsMagick (`>=1.3.31`).
+* Node.js (`>=12`).
+* GraphicsMagick (`>=1.3.36`).
 
 ## Installation ##
 
-0. Install Node.js.
-1. Install GraphicsMagick.
-2. Update configuration file `config.json`.
-3. Start the application by `node index.js <images-directory>`, where `<images-directory>` is the path of directory containing images for comparisons.
+0. `npm clean-install --production`
 
-## Usage ##
+## Configuration ##
 
-The configuration file `config.json` controls the following:
+Create a configuration file with the name `.env`. The configuration file controls
+the following:
 
-* `gmPath`: The absolute path of GraphicsMagick executable.
-* `differenceThreshold`: The maximum mean squared error (MSE) that can be tolerated for each comparison.
-* `abnormalImagesDirectory`: The directory where abnormal images will be copied into. The directory will be created automatically under the directory which containing images for analysis. If it is not specified, abnormal images will not be copied.
-* `crop`: If set to `null`, the images will not be cropped before comparsion. To crop the images, specify the following:
-    * `width`: Width of the cropped image.
-    * `height`: Height of the cropped image.
-    * `offsetX`: Offset of location from the left of the image.
-    * `offsetY`: Offset of location from the top of the image.
+* `GM_PATH`: Path of GraphicsMagick executable file.
+  * If `gm` (for UNIX/ Linux system) or `gm.exe` is in the PATH environment
+    variable, it is not necessary to specify the full path, the executable name
+    itself is sufficient.
+* `DIFF_THRESHOLD`: Maximum accepted difference between 2 images. The program
+  reports an error if the difference between 2 images is greater than this
+  value.
+* `ABNORMAL_IMAGES_DIRECTORY`: The directory to be created for abnormal images.
+  If specified, the directory will be created under the input directory.
+* `CROP_WIDTH`: The width of a cropped image.
+* `CROP_HEIGHT`: The height of a cropped image.
+* `CROP_OFFSET_X`: The offset from the left of the original image.
+* `CROP_OFFSET_Y`: The offset from the top of the originam image.
+
+If `CROP_WIDTH`, `CROP_HEIGHT`, `CROP_OFFSET_X`, and `CROP_OFFSET_Y` are
+specified, the images will be cropped before the comparisons.
+
+An example `.env.template` is provided as a reference.
 
 ## Examples ##
 
-Assuming the directory containing images for comparisons is `/path/to/images`, execute:
+Assume the directory `/path/to/images` contains some images for comparisons,
+execute:
 
-`node index.js /path/to/images`
+```
+node index.js /path/to/images
+```
 
-You will get output similar to the following:
+The output will be similar to the following:
 
-> Start comparing images at 2018-02-03T20:40:12.179Z.
+```
+01.png, 02.png: 0 [OKAY]
+02.png, 03.png: 0 [OKAY]
+03.png, 04.png: 0 [OKAY]
+04.png, 05.png: 0.75 [WARN]
+```
 
-> Completed comparing images at 2018-02-03T20:58:50.500Z.
+The output shows that:
 
-> /path/to/images/20180201-002618.jpeg, /path/to/images/20180201-002623.jpeg, 0.1477564507: WARN.
+* The difference between `01.png` and `02.png` is 0 and within threshold.
+* The difference between `02.png` and `03.png` is 0 and within threshold.
+* The difference between `03.png` and `04.png` is 0 and within threshold.
+* The difference between `04.png` and `05.png` is 0.75 and above threshold.
 
-> /path/to/images/20180201-002644.jpeg, /path/to/images/20180201-002649.jpeg, 0.0002248027: OKAY.
-
-> (A lot of similar lines...)
-
-> Start copying images at 2018-02-03T20:58:51.255Z.
-
-> Completed copying images at 2018-02-03T20:58:51.452Z.
-
-The output above shows:
-
-* The timestamp of beginning and end of comparisons.
-* `20180201-002618.jpeg` differs very much from `20180201-002623.jpeg` (MSE is 0.1477564507, which is above the `differenceThreshold`), so it gives a `WARN` message.
-* `20180201-002644.jpeg` looks similar to `20180201-002649.jpeg` (MSE is 0.0002248027, which is below the `differenceThreshold`), so it gives a `OKAY` message.
-* The timestamp of beginning and end of copying of abnormal images.
+If `ABNORMAL_IMAGES_DIRECTORY` is specified, `04.png` and `05.png` will be
+copied to the directory.
 
 ## License ##
 
