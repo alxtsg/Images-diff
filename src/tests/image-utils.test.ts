@@ -17,11 +17,11 @@ const CROP_CONFIG: CropConfig = {
 
 const fsPromises = fs.promises;
 
-describe('Image utilities', async (): Promise<void> => {
-  it('can crop images', async (): Promise<void> => {
+describe('Image utilities', async () => {
+  it('can crop images', async () => {
     const files: string[] = await fsUtils.getFiles(IMAGES_DIR);
     const outputDir: string = await fsUtils.createTempDirectory();
-    await assert.doesNotReject(async (): Promise<void> => {
+    await assert.doesNotReject(async () => {
       await imageUtils.cropImages(CROP_CONFIG, outputDir, files);
       const croppedFiles: string[] = await fsUtils.getFiles(outputDir);
       assert.strictEqual(croppedFiles.length, files.length);
@@ -29,12 +29,12 @@ describe('Image utilities', async (): Promise<void> => {
     await fsPromises.rmdir(outputDir, { recursive: true });
   });
 
-  it('can compare images', async (): Promise<void> => {
+  it('can compare images', async () => {
     const files: string[] = await fsUtils.getFiles(IMAGES_DIR);
     const outputDir: string = await fsUtils.createTempDirectory();
     await imageUtils.cropImages(CROP_CONFIG, outputDir, files);
     const croppedImages: string[] = await fsUtils.getFiles(outputDir);
-    await assert.doesNotReject(async (): Promise<void> => {
+    await assert.doesNotReject(async () => {
       const results: ComparisonResult[] = await imageUtils.compareImages(croppedImages);
       assert.strictEqual(results.length, (files.length - 1));
       const filteredResults: ComparisonResult[] = results.filter((results) => (results.difference > 0));

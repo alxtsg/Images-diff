@@ -9,8 +9,8 @@ const CROP_HEIGHT: number = 100;
 const CROP_OFFSET_X: number = 0;
 const CROP_OFFSET_Y: number = 0;
 
-describe('Configurations module', async (): Promise<void> => {
-  it('can load configurations', async (): Promise<void> => {
+describe('Configurations module', async () => {
+  it('can load configurations', async () => {
     assert.strictEqual(config.diffThreshold, DIFF_THRESHOLD);
     assert.strictEqual(
       config.abnormalImagesDirectory,

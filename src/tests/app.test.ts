@@ -9,9 +9,9 @@ const ABNORMAL_IMAGES_DIR: string = path.join(__dirname, 'data', 'abnormal');
 
 const fsPromises = fs.promises;
 
-describe('Main application', async (): Promise<void> => {
-  it('can compare images and copy abnormal images', async (): Promise<void> => {
-    await assert.doesNotReject(async (): Promise<void> => {
+describe('Main application', async () => {
+  it('can compare images and copy abnormal images', async () => {
+    await assert.doesNotReject(async () => {
       await app.run(INPUT_DIR);
       const stats: fs.Stats = await fsPromises.stat(ABNORMAL_IMAGES_DIR);
       assert.strictEqual(stats.isDirectory(), true);
