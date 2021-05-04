@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "author": "alextsang@live.com",
   "description": "Compare images in batch and report the differences.",
   "repository": {
