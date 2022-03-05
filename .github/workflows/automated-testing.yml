@@ -65,12 +65,18 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     # Install required software packages.
+    # The PATH environment variable is not updated after installing ImageMagick,
+    # so running refreshenv is required. However, due to unknown reasons,
+    # running refreshenv doesn't work as expected (the command is supposed to
+    # run on PowerShell but the refreshenv tries to update the environment
+    # variables for cmd.exe). To workaround the problem, install the Chocolatey
+    # PowerShell profile first.
+    # References: https://docs.chocolatey.org/en-us/troubleshooting#refreshenv-has-no-effect
     - name: Install dependencies
       run: |
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         choco install imagemagick
         refreshenv
-        Write-Host 'Path: ' $env:PATH
         Write-Output "$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
     - name: Check dependencies
       run: magick -version
