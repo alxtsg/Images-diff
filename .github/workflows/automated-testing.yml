@@ -65,16 +65,10 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     # Install required software packages.
-    # Before refreshing the environment variables, install Chocolatey PowerShell
-    # profile.
-    # References: https://docs.chocolatey.org/en-us/troubleshooting#refreshenv-has-no-effect
     - name: Install dependencies
       run: |
-        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         choco install imagemagick
-        refreshenv
-        Write-Host 'PATH: ' $env:PATH
-        Write-Host "$env:PATH" > $env:GITHUB_PATH
+        echo C:\Program Files\ImageMagick-7.1.0-Q16-HDRI | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Check dependencies
       run: |
         Write-Host 'PATH: ' $env:PATH
