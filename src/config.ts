@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 import path from 'path';
 
-import AppConfig from './types/app-config';
+import type AppConfig from './types/app-config';
 
 const ENV_FILE = path.join(__dirname, '.env');
 

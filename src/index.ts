@@ -1,6 +1,6 @@
 import * as app from './app';
 
-const EXPECTED_ARGS_LENGTH: number = 3;
+const EXPECTED_ARGS_LENGTH = 3;
 
 const printUsage = (): void => {
   const scriptPath = process.argv[1];
@@ -12,7 +12,7 @@ const main = async (): Promise<void> => {
     printUsage();
     return;
   }
-  const inputDir: string = process.argv[2];
+  const inputDir = process.argv[2];
   await app.run(inputDir);
 };
 

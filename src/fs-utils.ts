@@ -1,8 +1,6 @@
-import fs from 'fs';
+import fsPromises from 'fs/promises';
 import os from 'os';
 import path from 'path';
-
-const fsPromises = fs.promises;
 
 /**
  * Creates a temporary directory.
