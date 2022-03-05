@@ -26,7 +26,7 @@ jobs:
         curl -O 'https://download.imagemagick.org/ImageMagick/download/binaries/magick'
         chmod u+x magick
         mv magick ~/bin
-        PATH="$PATH:$HOME/bin"
+        export PATH="$PATH:$HOME/bin"
         magick -version
 
     # Build
