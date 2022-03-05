@@ -75,10 +75,11 @@ jobs:
         refreshenv
         Write-Host 'PATH... ' $env:PATH
         Write-Host "UPDATED_PATH=$env:PATH" >> $env:GITHUB_ENV
+        Get-Content $env:GITHUB_ENV
     - name: Check dependencies
       run: |
         Write-Host 'PATH' $env:PATH
-        Write-Host 'GITHUB_ENV... ''
+        Write-Host 'GITHUB_ENV... '
         Get-Content $env:GITHUB_ENV
         magick -version
       env:
