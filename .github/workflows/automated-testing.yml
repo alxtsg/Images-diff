@@ -65,9 +65,13 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     # Install required software packages.
+    # Before refreshing the environment variables, install Chocolatey PowerShell
+    # profile.
+    # References: https://docs.chocolatey.org/en-us/troubleshooting#refreshenv-has-no-effect
     - name: Install dependencies
       run: |
         choco install imagemagick
+        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
     - name: Check dependencies
       run: magick -version
