@@ -74,10 +74,6 @@ jobs:
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
         Write-Host $Env:PATH
-    - name: Check dependencies
-      run: |
-        refreshenv
-        Write-Host $Env:PATH
         magick -version
 
     # Build
