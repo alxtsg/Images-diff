@@ -14,8 +14,8 @@ The differences are computed using MSE (mean error squared) as the metric.
 
 ## Requirements ##
 
-* Node.js (`>=12`).
-* GraphicsMagick (`>=1.3.36`).
+* Node.js (`>=16`).
+* ImageMagick (`>=7.1`).
 
 ## Installation ##
 
@@ -23,27 +23,25 @@ The differences are computed using MSE (mean error squared) as the metric.
 
 ## Configuration ##
 
-Create a configuration file with the name `.env`. The configuration file controls
-the following:
+Create a configuration file with the name `.env`. The configuration file
+controls the following:
 
-* `GM_PATH`: Path of GraphicsMagick executable file.
-  * If `gm` (for UNIX/ Linux system) or `gm.exe` is in the PATH environment
-    variable, it is not necessary to specify the full path, the executable name
-    itself is sufficient.
+* `MAGICK_PATH`: Path of ImageMagick.
+  * If `magick` (for UNIX/ Linux system) or `magick.exe` is in the `PATH`
+    environment variable, it is not necessary to specify the full path, the
+    executable name itself is sufficient.
 * `DIFF_THRESHOLD`: Maximum accepted difference between 2 images. The program
   reports an error if the difference between 2 images is greater than this
   value.
 * `ABNORMAL_IMAGES_DIRECTORY`: The directory to be created for abnormal images.
   If specified, the directory will be created under the input directory.
-* `CROP_WIDTH`: The width of a cropped image.
-* `CROP_HEIGHT`: The height of a cropped image.
-* `CROP_OFFSET_X`: The offset from the left of the original image.
-* `CROP_OFFSET_Y`: The offset from the top of the originam image.
+* Set all of the following to crop to the area to be inspected:
+  * `CROP_WIDTH`: The width of a cropped image.
+  * `CROP_HEIGHT`: The height of a cropped image.
+  * `CROP_OFFSET_X`: The offset from the left of the original image.
+  * `CROP_OFFSET_Y`: The offset from the top of the originam image.
 
-If `CROP_WIDTH`, `CROP_HEIGHT`, `CROP_OFFSET_X`, and `CROP_OFFSET_Y` are
-specified, the images will be cropped before the comparisons.
-
-An example `.env.template` is provided as a reference.
+An example, `.env.template`, is provided as a reference.
 
 ## Examples ##
 
@@ -57,10 +55,10 @@ node index.js /path/to/images
 The output will be similar to the following:
 
 ```
-01.png, 02.png: 0 [OKAY]
-02.png, 03.png: 0 [OKAY]
-03.png, 04.png: 0 [OKAY]
-04.png, 05.png: 0.75 [WARN]
+[OKAY] 01.png, 02.png: 0
+[OKAY] 02.png, 03.png: 0
+[OKAY] 03.png, 04.png: 0
+[WARN] 04.png, 05.png: 0.75
 ```
 
 The output shows that:
