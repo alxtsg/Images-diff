@@ -22,8 +22,12 @@ jobs:
     # Install required software packages.
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install imagemagick
+        mkdir -p ~/bin
+        curl -O 'https://download.imagemagick.org/ImageMagick/download/binaries/magick'
+        chmod u+x magick
+        mv magick ~/bin
+        PATH="$PATH:$HOME/bin"
+        magick -version
 
     # Build
     - name: Install dependencies (build)
