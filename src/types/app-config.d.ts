@@ -3,9 +3,9 @@ import CropConfig from './crop-config';
 export default interface AppConfig {
 
   /**
-   * GraphicsMagick executable path.
+   * ImageMagick binary path.
    */
-  gmPath: string;
+  magickPath: string;
 
   /**
    * Images difference threshold.

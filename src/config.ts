@@ -4,10 +4,10 @@ import path from 'path';
 
 import AppConfig from './types/app-config';
 
-const ENV_FILE: string = path.join(__dirname, '.env');
+const ENV_FILE = path.join(__dirname, '.env');
 
 const config: AppConfig = {
-  gmPath: '',
+  magickPath: '',
   diffThreshold: 0,
   abnormalImagesDirectory: null,
   cropConfig: null
@@ -24,7 +24,7 @@ const loadConfig = (): void => {
     throw new Error('No parsed configurations.');
   }
   const envConfig = result.parsed;
-  config.gmPath = envConfig.GM_PATH;
+  config.magickPath = envConfig.MAGICK_PATH;
   if (!Number.isFinite(Number(envConfig.DIFF_THRESHOLD))) {
     throw new Error('Invalid images difference threshold.');
   }
@@ -36,17 +36,21 @@ const loadConfig = (): void => {
     envConfig.CROP_HEIGHT &&
     envConfig.CROP_OFFSET_X &&
     envConfig.CROP_OFFSET_Y) {
-    if (!Number.isInteger(Number(envConfig.CROP_WIDTH)) ||
-    !Number.isInteger(Number(envConfig.CROP_HEIGHT)) ||
-    !Number.isInteger(Number(envConfig.CROP_OFFSET_X)) ||
-    !Number.isInteger(Number(envConfig.CROP_OFFSET_Y))) {
+    const cropWidth = Number(envConfig.CROP_WIDTH);
+    const cropHeihght = Number(envConfig.CROP_HEIGHT);
+    const cropOffsetX = Number(envConfig.CROP_OFFSET_X);
+    const cropOffsetY = Number(envConfig.CROP_OFFSET_Y);
+    if (!Number.isInteger(cropWidth) ||
+      !Number.isInteger(cropHeihght) ||
+      !Number.isInteger(cropOffsetX) ||
+      !Number.isInteger(cropOffsetY)) {
       throw new Error('Invalid crop configurations.');
     }
     config.cropConfig = {
-      width: Number(envConfig.CROP_WIDTH),
-      height: Number(envConfig.CROP_HEIGHT),
-      offsetX: Number(envConfig.CROP_OFFSET_X),
-      offsetY: Number(envConfig.CROP_OFFSET_Y)
+      width: cropWidth,
+      height: cropHeihght,
+      offsetX: cropOffsetX,
+      offsetY: cropOffsetY
     };
   }
 };
