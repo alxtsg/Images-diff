@@ -74,15 +74,15 @@ jobs:
         choco install imagemagick
         refreshenv
         Write-Host 'PATH... ' $env:PATH
-        Write-Host $env:PATH > $env:GITHUB_PATH
-        Write-Host 'Content of $env:GITHUB_PATH ... ' $env:GITHUB_PATH
-        Get-Content $env:GITHUB_PATH
+        Write-Host "UPDATED_PATH=$env:PATH" >> $env:GITHUB_ENV
     - name: Check dependencies
       run: |
         Write-Host 'PATH' $env:PATH
-        Write-Host 'Content of $env:GITHUB_PATH...'
-        Get-Content $env:GITHUB_PATH
+        Write-Host 'GITHUB_ENV... ''
+        Get-Content $env:GITHUB_ENV
         magick -version
+      env:
+        PATH: "${{ env.UPDATED_PATH }}"
 
     # Build
     - name: Install dependencies (build)
