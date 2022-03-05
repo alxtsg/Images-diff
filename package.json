@@ -1,15 +1,15 @@
 {
   "name": "images-diff",
   "version": "4.1.0",
-  "author": "alextsang@live.com",
   "description": "Compare images in batch and report the differences.",
+  "homepage": "https://bitbucket.org/alxtsg/images-diff/",
+  "license": "BSD-3-Clause",
+  "author": "Alex TSANG <alextsang@live.com>",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@bitbucket.org:alxtsg/images-diff.git"
   },
-  "license": "BSD-3-Clause",
-  "homepage": "https://bitbucket.org/alxtsg/images-diff/",
-  "main": "index.js",
   "scripts": {
     "clean": "rimraf dist/",
     "copy-env": "copyfiles -u 1 src/.env.template dist",
@@ -21,15 +21,16 @@
     "test": "mocha --recursive --exclude tests/setup.js \"tests/**/*.test.js\""
   },
   "dependencies": {
-    "dotenv": "^8.2.0"
+    "dotenv": "^16.0.0"
   },
   "devDependencies": {
     "@tsconfig/node12": "^1.0.7",
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^15.0.1",
+    "@tsconfig/node16": "^1.0.2",
+    "@types/mocha": "^9.1.0",
+    "@types/node": "^16.x.x",
     "copyfiles": "^2.4.1",
-    "mocha": "^8.3.2",
+    "mocha": "^9.2.1",
     "rimraf": "^3.0.2",
-    "typescript": "^4.2.4"
+    "typescript": "^4.6.2"
   }
 }
