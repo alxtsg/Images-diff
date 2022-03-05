@@ -1,23 +1,31 @@
 import assert from 'assert';
-import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 
 import * as app from '../app';
+import * as fsUtils from '../fs-utils';
 
-const INPUT_DIR: string = path.join(__dirname, 'data');
-const ABNORMAL_IMAGES_DIR: string = path.join(__dirname, 'data', 'abnormal');
-
-const fsPromises = fs.promises;
+const INPUT_DIR = path.join(__dirname, 'data');
+const ABNORMAL_IMAGES_DIR = path.join(__dirname, 'data', 'abnormal');
 
 describe('Main application', async () => {
+  it('can get comparison pairs', async () => {
+    const files = await fsUtils.getFiles(INPUT_DIR);
+    assert.doesNotThrow(() => {
+      const pairs = app.getComparisonPairs(files);
+      assert.strictEqual(pairs.length, (files.length - 1));
+    });
+  });
+
   it('can compare images and copy abnormal images', async () => {
     await assert.doesNotReject(async () => {
       await app.run(INPUT_DIR);
-      const stats: fs.Stats = await fsPromises.stat(ABNORMAL_IMAGES_DIR);
+      const stats = await fsPromises.stat(ABNORMAL_IMAGES_DIR);
       assert.strictEqual(stats.isDirectory(), true);
-      const files: string[] = await fsPromises.readdir(ABNORMAL_IMAGES_DIR);
-      assert.strictEqual(files.length, 2);
+      const files = await fsPromises.readdir(ABNORMAL_IMAGES_DIR);
+      const expectedAnomalies = 2;
+      assert.strictEqual(files.length, expectedAnomalies);
     });
-    await fsPromises.rmdir(ABNORMAL_IMAGES_DIR, { recursive: true });
+    await fsPromises.rm(ABNORMAL_IMAGES_DIR, { recursive: true });
   });
 });

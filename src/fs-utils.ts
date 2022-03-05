@@ -1,29 +1,12 @@
 import fsPromises from 'fs/promises';
-import os from 'os';
 import path from 'path';
-
-/**
- * Creates a temporary directory.
- *
- * @returns Resolves with the path of the temporary directory.
- */
-export const createTempDirectory = async (): Promise<string> => {
-  try {
-    const basePath: string = path.join(os.tmpdir(), path.sep);
-    const directory = await fsPromises.mkdtemp(basePath);
-    return directory;
-  } catch (error) {
-    console.error('Unable to create temporary directory.');
-    throw error;
-  }
-};
 
 /**
  * Gets absolute paths of files under the specified directory.
  *
  * @param directory Target directory.
  *
- * @returns Resolves with an array of paths of files.
+ * @returns A Promise resolves with an array of paths of files.
  */
 export const getFiles = async (directory: string): Promise<string[]> => {
   try {

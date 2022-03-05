@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 
 import ComparisonResult from './types/comparison-result';
@@ -6,43 +6,63 @@ import config from './config';
 import * as fsUtils from './fs-utils';
 import * as imageUtils from './image-utils';
 
-const fsPromises = fs.promises;
+import type ComparisonPair from './types/comparison-pair';
 
+/**
+ * Gets the pairs of files to be compared.
+ *
+ * @param files Files to be compared.
+ *
+ * @returns Comparison pairs.
+ */
+export const getComparisonPairs = (files: string[]): ComparisonPair[] => {
+  return files.map((file, index) => {
+      if (index === 0) {
+        return null;
+      }
+      return {
+        original: files[index - 1],
+        altered: file
+      };
+    })
+    .filter((pair): pair is ComparisonPair => (pair !== null));
+};
+
+/**
+ * Runs the application.
+ *
+ * @param inputDir The directory which contains images to be compared.
+ */
 export const run = async (inputDir: string): Promise<void> => {
-  let images: string[] = await fsUtils.getFiles(inputDir);
-  let tempDir: string | null = '';
-  if (config.cropConfig !== null) {
-    tempDir = await fsUtils.createTempDirectory();
-    await imageUtils.cropImages(config.cropConfig, tempDir, images);
-    images = await fsUtils.getFiles(tempDir);
+  const start = Date.now();
+  const images = await fsUtils.getFiles(inputDir);
+  const imagePairs = getComparisonPairs(images);
+  const results: ComparisonResult[] = [];
+  for (const pair of imagePairs) {
+    const result = await imageUtils.compareImages(pair.original, pair.altered);
+    results.push(result);
   }
-  const results: ComparisonResult[] = await imageUtils.compareImages(images);
   const anomalies: Set<string> = new Set();
   results.forEach((result) => {
     const { original, altered, difference } = result;
     if (difference < config.diffThreshold) {
-      console.log(`${original}, ${altered}: ${difference} [OKAY]`);
+      console.log(`[OKAY] ${original}, ${altered}: ${difference}`);
     } else {
       anomalies.add(original);
       anomalies.add(altered);
-      console.log(`${original}, ${altered}: ${difference} [WARN]`);
+      console.log(`[WARN] ${original}, ${altered}: ${difference}`);
     }
   });
   if (config.abnormalImagesDirectory !== null) {
-    const outputDir: string = path.join(inputDir, config.abnormalImagesDirectory);
+    const outputDir = path.join(inputDir, config.abnormalImagesDirectory);
     await fsPromises.mkdir(outputDir);
-    const abnormalImages: string[] = [];
-    anomalies.forEach((file) => {
-      abnormalImages.push(path.join(inputDir, file));
-    });
-    for (const imageFile of abnormalImages) {
+    for (const anomaly of anomalies) {
       await fsPromises.copyFile(
-        imageFile,
-        path.join(outputDir, path.basename(imageFile))
-      );
+        anomaly,
+        path.join(outputDir, path.basename(anomaly))
+      )
     }
   }
-  if (tempDir !== null) {
-    await fsPromises.rmdir(tempDir, { recursive: true });
-  }
+  const end = Date.now();
+  console.log(`Completed in ${(end - start)}ms.`);
 };

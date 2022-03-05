@@ -1,92 +1,74 @@
-import path from 'path';
+import childProcess from 'child_process';
 
-import ComparisonResult from './types/comparison-result';
-import CropConfig from './types/crop-config';
-import GMBatchCommandRunner from './gm-batch-command-runner';
+import config from './config.js'
 
-const COMPARISON_METRIC: string = 'mse';
-const COMPARISON_RESULT_REGEX: RegExp = /Total: (\d+\.?\d*)/gm;
+import type ComparisonResult from './types/comparison-result';
+
+const COMPARISON_METRIC = 'mse';
+const COMPARISON_RESULT_REGEX = /\d+\.?\d*(e-)?\d* \((\d+\.?\d*(e-)?\d*)\)/;
+// Expected length of regular expression matching result.
+const RESULTS_LENGTH = 4;
+// The index of value that represents the difference in the matching results.
+const DIFF_RESULT_INDEX = 2;
+// ImageMagick compare program returns 2 on error.
+// https://imagemagick.org/script/compare.php
+const COMPARISON_ERROR_CODE = 2;
+const STANDARD_OUTPUT = '-';
 
 /**
- * Crops images.
+ * Compare images and report comparison result.
  *
- * @param cropConfig Image cropping configurations.
- * @param outputDir Directory for cropped images.
- * @param files Absolute paths of images to be cropped.
+ * @param original Path of original (reference) image.
+ * @param altered Path of altered image.
  *
- * @returns Resolves without a value.
+ * @returns A Promise resolves with the comparison result.
  */
-export const cropImages = async (cropConfig: CropConfig, outputDir: string, files: string[]): Promise<void> => {
-  const { width, height, offsetX, offsetY } = cropConfig;
-  const commands: string[] = files.map((file) => {
-    const outputFile: string = path.join(outputDir, path.basename(file));
-    return [
-      'convert',
-      `"${file}"`,
+export const compareImages = async (original: string, altered: string): Promise<ComparisonResult> => {
+  const args = [
+    'compare',
+    '-metric',
+    COMPARISON_METRIC,
+    original,
+    altered
+  ];
+  if (config.cropConfig !== null) {
+    const { width, height, offsetX, offsetY } = config.cropConfig;
+    const cropDimension = `${width}x${height}+${offsetX}+${offsetY}`;
+    args.push(...[
       '-crop',
-      `${width}x${height}+${offsetX}+${offsetY}`,
-      `"${outputFile}"`,
-      '\n'
-    ].join(' ');
-  });
-  const runner: GMBatchCommandRunner = new GMBatchCommandRunner();
+      cropDimension
+    ]);
+  }
+  // Write differences to standard output to avoid writing useless data to disk.
+  args.push(STANDARD_OUTPUT);
   return new Promise((resolve, reject) => {
-    runner.once(GMBatchCommandRunner.EVENT_ERROR, (error: Error) => {
+    const magick = childProcess.spawn(config.magickPath, args);
+    const outputLines: string[] = [];
+    magick.once('error', (error) => {
       reject(error);
-    })
-    runner.once(GMBatchCommandRunner.EVENT_DONE, () => {
-      resolve();
+      return;
     });
-    runner.run(commands);
-  });
-};
-
-/**
- * Compares images.
- *
- * @param files Absolute paths of images to be compared.
- *
- * @returns Resolves with an array of comparison results.
- */
-export const compareImages = async (files: string[]): Promise<ComparisonResult[]> => {
-  const commands: string[] = files.map((file, index) => {
-      if (index === 0) {
-        return '';
+    // ImageMagick writes comparison result to stderr (standard error output).
+    // https://legacy.imagemagick.org/discourse-server/viewtopic.php?t=9292
+    magick.stderr.on('data', (data) => {
+      outputLines.push(Buffer.from(data, 'utf8').toString());
+    });
+    magick.once('close', (code) => {
+      if (code === COMPARISON_ERROR_CODE) {
+        reject(new Error(`Compare program exited with code ${code}.`));
+        return;
       }
-      const origin: string = files[index - 1];
-      const altered: string = file;
-      return [
-        'compare',
-        '-metric',
-        `${COMPARISON_METRIC}`,
-        `"${origin}"`,
-        `"${altered}"`,
-        '\n'
-      ].join(' ');
-    })
-    .filter((command) => (command !== ''));
-  const results: ComparisonResult[] = [];
-  const runner: GMBatchCommandRunner = new GMBatchCommandRunner();
-  let index: number = 0;
-  return new Promise((resolve, reject) => {
-    runner.once(GMBatchCommandRunner.EVENT_ERROR, (error: Error) => {
-      reject(error);
-    })
-    runner.once(GMBatchCommandRunner.EVENT_DONE, () => {
-      resolve(results);
-    });
-    runner.on(GMBatchCommandRunner.EVENT_DATA, (data) => {
-      const matches = data.matchAll(COMPARISON_RESULT_REGEX);
-      for (const match of matches) {
-        const [ _, value ] = match;
-        results.push({
-          original: path.basename(files[index]),
-          altered: path.basename(files[index + 1]),
-          difference: Number(value)
-        });
-        index += 1;
+      const output = outputLines.join('');
+      const results = output.match(COMPARISON_RESULT_REGEX);
+      if (!Array.isArray(results) || (results.length !== RESULTS_LENGTH)) {
+        reject(new Error(`Unexpected comparison output: ${output}`));
+        return;
       }
+      resolve({
+        original,
+        altered,
+        difference: Number(results[DIFF_RESULT_INDEX])
+      });
     });
-    runner.run(commands);
   });
 };

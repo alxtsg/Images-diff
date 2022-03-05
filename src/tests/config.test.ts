@@ -2,12 +2,12 @@ import assert from 'assert';
 
 import config from '../config';
 
-const DIFF_THRESHOLD: number = 0.005;
-const ABNORMAL_IMAGES_DIRECTORY: string = 'abnormal';
-const CROP_WIDTH: number = 100;
-const CROP_HEIGHT: number = 100;
-const CROP_OFFSET_X: number = 0;
-const CROP_OFFSET_Y: number = 0;
+const DIFF_THRESHOLD = 0.005;
+const ABNORMAL_IMAGES_DIRECTORY = 'abnormal';
+const CROP_WIDTH = 100;
+const CROP_HEIGHT = 100;
+const CROP_OFFSET_X = 0;
+const CROP_OFFSET_Y = 0;
 
 describe('Configurations module', async () => {
   it('can load configurations', async () => {
