@@ -74,12 +74,9 @@ jobs:
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
         Write-Host $Env:PATH
-        $Env:GITHUB_PATH="$Env:PATH"
+        Write-Host $Env:PATH | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8
     - name: Check dependencies
-      run: |
-        Write-Host $Env:GITHUB_PATH
-        Write-Host $Env:PATH
-        magick -version
+      run: magick -version
 
     # Build
     - name: Install dependencies (build)
