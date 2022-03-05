@@ -76,6 +76,7 @@ jobs:
         Write-Host $Env:PATH
     - name: Check dependencies
       run: |
+        refreshenv
         Write-Host $Env:PATH
         magick -version
 
