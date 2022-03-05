@@ -73,8 +73,11 @@ jobs:
         choco install imagemagick
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
+        Write-Host $Env:PATH
     - name: Check dependencies
-      run: magick -version
+      run: |
+        Write-Host $Env:PATH
+        magick -version
 
     # Build
     - name: Install dependencies (build)
