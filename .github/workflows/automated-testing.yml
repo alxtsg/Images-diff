@@ -66,7 +66,9 @@ jobs:
 
     # Install required software packages.
     - name: Install dependencies
-      run: choco install imagemagick
+      run: |
+        choco install imagemagick
+        refreshenv
     - name: Check dependencies
       run: magick -version
 
