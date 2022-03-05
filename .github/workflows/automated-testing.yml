@@ -74,8 +74,8 @@ jobs:
         choco install imagemagick
         refreshenv
         Write-Host 'PATH... ' $env:PATH
-        Write-Host $env:PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
-        Write-Host 'Content of $env:GITHUB_PATH...'
+        Write-Host $env:PATH > $env:GITHUB_PATH
+        Write-Host 'Content of $env:GITHUB_PATH ... ' $env:GITHUB_PATH
         Get-Content $env:GITHUB_PATH
     - name: Check dependencies
       run: |
