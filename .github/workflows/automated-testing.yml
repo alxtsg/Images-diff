@@ -68,11 +68,10 @@ jobs:
     - name: Install dependencies
       run: |
         choco install imagemagick
-        echo 'C:\Program Files\ImageMagick-7.1.0-Q16-HDRI' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Write-Host 'Path: ' $env:PATH
+        Write-Output 'C:\Program Files\ImageMagick-7.1.0-Q16-HDRI' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Check dependencies
-      run: |
-        Write-Host 'PATH: ' $env:PATH
-        magick -version
+      run: magick -version
 
     # Build
     - name: Install dependencies (build)
