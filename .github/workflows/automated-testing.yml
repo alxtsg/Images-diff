@@ -20,13 +20,17 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
 
     # Install required software packages.
+    # Also add the new directory to PATH.
+    # Reference: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path
     - name: Install dependencies
       run: |
-        mkdir -p ~/bin
+        mkdir -p "$HOME/.local/bin"
         curl -O 'https://download.imagemagick.org/ImageMagick/download/binaries/magick'
         chmod u+x magick
-        mv magick ~/bin
-        export PATH="$PATH:$HOME/bin"
+        mv magick "$HOME/.local/bin"
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+    - name: Check dependencies
+      run: |
         magick -version
 
     # Build
