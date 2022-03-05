@@ -73,8 +73,9 @@ jobs:
         choco install imagemagick
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         refreshenv
-        Write-Host $Env:PATH
-        Write-Host $Env:PATH | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8
+        Write-Host '$env:PATH... ' $env:PATH
+        Write-Host 'C:\Program Files\ImageMagick-7.1.0-Q16-HDRI\' | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Write-Host '$env:GITHUB_PATH... ' $env:GITHUB_PATH
     - name: Check dependencies
       run: magick -version
 
