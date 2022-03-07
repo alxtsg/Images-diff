@@ -37,13 +37,9 @@ export const run = async (inputDir: string): Promise<void> => {
   const start = Date.now();
   const images = await fsUtils.getFiles(inputDir);
   const imagePairs = getComparisonPairs(images);
-  const results: ComparisonResult[] = [];
+  const anomalies: Set<string> = new Set();
   for (const pair of imagePairs) {
     const result = await imageUtils.compareImages(pair.original, pair.altered);
-    results.push(result);
-  }
-  const anomalies: Set<string> = new Set();
-  results.forEach((result) => {
     const { original, altered, difference } = result;
     if (difference < config.diffThreshold) {
       console.log(`[OKAY] ${original}, ${altered}: ${difference}`);
@@ -52,7 +48,7 @@ export const run = async (inputDir: string): Promise<void> => {
       anomalies.add(altered);
       console.log(`[WARN] ${original}, ${altered}: ${difference}`);
     }
-  });
+  }
   if (config.abnormalImagesDirectory !== null) {
     const outputDir = path.join(inputDir, config.abnormalImagesDirectory);
     await fsPromises.mkdir(outputDir);
