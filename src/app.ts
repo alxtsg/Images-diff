@@ -1,7 +1,6 @@
 import fsPromises from 'fs/promises';
 import path from 'path';
 
-import ComparisonResult from './types/comparison-result';
 import config from './config';
 import * as fsUtils from './fs-utils';
 import * as imageUtils from './image-utils';
