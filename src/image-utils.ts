@@ -48,6 +48,9 @@ export const compareImages = async (original: string, altered: string): Promise<
       reject(error);
       return;
     });
+    // It is important to listen on the stdout (standard output) even if the
+    // data is not needed, otherwise the ImageMagick process may never close.
+    magick.stdout.on('data', () => {});
     // ImageMagick writes comparison result to stderr (standard error output).
     // https://legacy.imagemagick.org/discourse-server/viewtopic.php?t=9292
     magick.stderr.on('data', (data) => {
