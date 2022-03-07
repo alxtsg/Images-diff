@@ -5,28 +5,6 @@ import config from './config';
 import * as fsUtils from './fs-utils';
 import * as imageUtils from './image-utils';
 
-import type ComparisonPair from './types/comparison-pair';
-
-/**
- * Gets the pairs of files to be compared.
- *
- * @param files Files to be compared.
- *
- * @returns Comparison pairs.
- */
-export const getComparisonPairs = (files: string[]): ComparisonPair[] => {
-  return files.map((file, index) => {
-      if (index === 0) {
-        return null;
-      }
-      return {
-        original: files[index - 1],
-        altered: file
-      };
-    })
-    .filter((pair): pair is ComparisonPair => (pair !== null));
-};
-
 /**
  * Runs the application.
  *
@@ -35,10 +13,12 @@ export const getComparisonPairs = (files: string[]): ComparisonPair[] => {
 export const run = async (inputDir: string): Promise<void> => {
   const start = Date.now();
   const images = await fsUtils.getFiles(inputDir);
-  const imagePairs = getComparisonPairs(images);
   const anomalies: Set<string> = new Set();
-  for (const pair of imagePairs) {
-    const result = await imageUtils.compareImages(pair.original, pair.altered);
+  for (let i = 0; i < images.length; i += 1) {
+    if (i === 0) {
+      continue;
+    }
+    const result = await imageUtils.compareImages(images[i - 1], images[i]);
     const { original, altered, difference } = result;
     if (difference < config.diffThreshold) {
       console.log(`[OKAY] ${original}, ${altered}: ${difference}`);

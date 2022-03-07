@@ -1,7 +1,6 @@
 import assert from 'assert';
 import path from 'path';
 
-import * as app from '../app';
 import * as fsUtils from '../fs-utils';
 import * as imageUtils from '../image-utils';
 
@@ -12,11 +11,14 @@ const IMAGES_DIR = path.join(__dirname, 'data');
 describe('Image utilities', async () => {
   it('can compare images', async () => {
     const files = await fsUtils.getFiles(IMAGES_DIR);
-    const pairs = app.getComparisonPairs(files);
     await assert.doesNotReject(async () => {
       const results: ComparisonResult[] = [];
-      for (const pair of pairs) {
-        const { original, altered } = pair;
+      for (let i = 0; i < files.length; i += 1) {
+        if (i === 0) {
+          continue;
+        }
+        const original = files[i - 1];
+        const altered = files[i];
         const result = await imageUtils.compareImages(original, altered);
         results.push(result);
       }
