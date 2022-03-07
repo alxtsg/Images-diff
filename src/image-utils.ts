@@ -6,10 +6,12 @@ import type ComparisonResult from './types/comparison-result';
 
 const COMPARISON_METRIC = 'mse';
 const COMPARISON_RESULT_REGEX = /\d+\.?\d*(e-)?\d* \((\d+\.?\d*(e-)?\d*)\)/;
+
 // Expected length of regular expression matching result.
 const RESULTS_LENGTH = 4;
 // The index of value that represents the difference in the matching results.
 const DIFF_RESULT_INDEX = 2;
+
 // ImageMagick compare program returns 2 on error.
 // https://imagemagick.org/script/compare.php
 const COMPARISON_ERROR_CODE = 2;
@@ -42,15 +44,19 @@ export const compareImages = async (original: string, altered: string): Promise<
   // Write differences to standard output to avoid writing useless data to disk.
   args.push(STANDARD_OUTPUT);
   return new Promise((resolve, reject) => {
-    const magick = childProcess.spawn(config.magickPath, args);
+    const magick = childProcess.spawn(
+      config.magickPath,
+      args,
+      {
+        // Ignore both stdin and stdout as only the stderr is being read.
+        stdio: ['ignore', 'ignore', 'pipe']
+      }
+    );
     const outputLines: string[] = [];
     magick.once('error', (error) => {
       reject(error);
       return;
     });
-    // It is important to listen on the stdout (standard output) even if the
-    // data is not needed, otherwise the ImageMagick process may never close.
-    magick.stdout.on('data', () => {});
     // ImageMagick writes comparison result to stderr (standard error output).
     // https://legacy.imagemagick.org/discourse-server/viewtopic.php?t=9292
     magick.stderr.on('data', (data) => {
