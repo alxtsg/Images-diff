@@ -77,7 +77,7 @@ jobs:
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
         choco install imagemagick
         refreshenv
-        Write-Output "$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+        Write-Output "$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Check dependencies
       run: magick -version
 
