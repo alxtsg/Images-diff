@@ -18,7 +18,7 @@ const COMPARISON_ERROR_CODE = 2;
 const STANDARD_OUTPUT = '-';
 
 /**
- * Compare images and report comparison result.
+ * Compares images and report comparison result.
  *
  * @param original Path of original (reference) image.
  * @param altered Path of altered image.
