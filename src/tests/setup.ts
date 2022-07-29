@@ -4,7 +4,7 @@ import path from 'path';
 const ENV_FILE = path.join(__dirname, '..', '.env');
 const ENV_CONTENT = [
   'MAGICK_PATH=magick',
-  'DIFF_THRESHOLD=0.005',
+  'DIFF_THRESHOLD=0.99',
   'ABNORMAL_IMAGES_DIRECTORY=abnormal',
   'CROP_WIDTH=100',
   'CROP_HEIGHT=100',

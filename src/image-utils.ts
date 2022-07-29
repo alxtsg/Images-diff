@@ -1,21 +1,17 @@
 import childProcess from 'child_process';
+import os from 'os';
 
 import config from './config.js'
 
+import type ComparisonPair from './types/comparison-pair';
 import type ComparisonResult from './types/comparison-result';
 
-const COMPARISON_METRIC = 'mse';
-const COMPARISON_RESULT_REGEX = /\d+\.?\d*(e-)?\d* \((\d+\.?\d*(e-)?\d*)\)/;
-
-// Expected length of regular expression matching result.
-const RESULTS_LENGTH = 4;
-// The index of value that represents the difference in the matching results.
-const DIFF_RESULT_INDEX = 2;
+const WORK_BATCH_SIZE = os.cpus().length;
+const COMPARISON_METRIC = 'ssim';
 
 // ImageMagick compare program returns 2 on error.
 // https://imagemagick.org/script/compare.php
 const COMPARISON_ERROR_CODE = 2;
-const STANDARD_OUTPUT = '-';
 
 /**
  * Compares images and report comparison result.
@@ -27,11 +23,8 @@ const STANDARD_OUTPUT = '-';
  */
 export const compareImages = async (original: string, altered: string): Promise<ComparisonResult> => {
   const args = [
-    'compare',
-    '-metric',
-    COMPARISON_METRIC,
-    original,
-    altered
+    altered,
+    original
   ];
   if (config.cropConfig !== null) {
     const { width, height, offsetX, offsetY } = config.cropConfig;
@@ -41,15 +34,21 @@ export const compareImages = async (original: string, altered: string): Promise<
       cropDimension
     ]);
   }
-  // Write differences to standard output to avoid writing useless data to disk.
-  args.push(STANDARD_OUTPUT);
+  args.push(...[
+    '-metric',
+    COMPARISON_METRIC,
+    '-compare',
+    '-format',
+    '%[distortion]',
+    'info:'
+  ]);
   return new Promise((resolve, reject) => {
     const magick = childProcess.spawn(
       config.magickPath,
       args,
       {
-        // Ignore both stdin and stdout as only the stderr is being read.
-        stdio: ['ignore', 'ignore', 'pipe']
+        // Ignore both stdin and stderr as only the stdout is being read.
+        stdio: ['ignore', 'pipe', 'ignore']
       }
     );
     const outputLines: string[] = [];
@@ -57,9 +56,7 @@ export const compareImages = async (original: string, altered: string): Promise<
       reject(error);
       return;
     });
-    // ImageMagick writes comparison result to stderr (standard error output).
-    // https://legacy.imagemagick.org/discourse-server/viewtopic.php?t=9292
-    magick.stderr.on('data', (data) => {
+    magick.stdout.on('data', (data) => {
       outputLines.push(Buffer.from(data, 'utf8').toString());
     });
     magick.once('close', (code) => {
@@ -67,17 +64,47 @@ export const compareImages = async (original: string, altered: string): Promise<
         reject(new Error(`Compare program exited with code ${code}.`));
         return;
       }
-      const output = outputLines.join('');
-      const results = output.match(COMPARISON_RESULT_REGEX);
-      if (!Array.isArray(results) || (results.length !== RESULTS_LENGTH)) {
+      const output = Number(outputLines.join(''));
+      if (Number.isNaN(output)) {
         reject(new Error(`Unexpected comparison output: ${output}`));
         return;
       }
       resolve({
         original,
         altered,
-        difference: Number(results[DIFF_RESULT_INDEX])
+        difference: output
       });
     });
   });
 };
+
+/**
+ * Compares
+ * @param paths Paths of images.
+ */
+export const compareImageBatch = async (paths: string[]): Promise<ComparisonResult[]> => {
+  const pairs: ComparisonPair[] = [];
+  paths.forEach((path, index) => {
+    if (index === 0) {
+      return;
+    }
+    pairs.push({
+      original: paths[index - 1],
+      altered: path
+    });
+  });
+  const results: ComparisonResult[] = [];
+  while (pairs.length > 0) {
+    const batch = [];
+    for (let i = 0; i < WORK_BATCH_SIZE; i += 1) {
+      const pair = pairs.shift();
+      if (!pair) {
+        break;
+      }
+      batch.push(compareImages(pair.original, pair.altered));
+    }
+    const batchResults = await Promise.all(batch);
+    results.push(...batchResults);
+  }
+  return results;
+}

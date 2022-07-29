@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import config from '../config';
 
-const DIFF_THRESHOLD = 0.005;
+const DIFF_THRESHOLD = 0.99;
 const ABNORMAL_IMAGES_DIRECTORY = 'abnormal';
 const CROP_WIDTH = 100;
 const CROP_HEIGHT = 100;

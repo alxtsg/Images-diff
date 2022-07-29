@@ -14,20 +14,17 @@ export const run = async (inputDir: string): Promise<void> => {
   const start = Date.now();
   const images = await fsUtils.getFiles(inputDir);
   const anomalies: Set<string> = new Set();
-  for (let i = 0; i < images.length; i += 1) {
-    if (i === 0) {
-      continue;
-    }
-    const result = await imageUtils.compareImages(images[i - 1], images[i]);
+  const results = await imageUtils.compareImageBatch(images);
+  results.forEach((result) => {
     const { original, altered, difference } = result;
-    if (difference < config.diffThreshold) {
+    if (difference >= config.diffThreshold) {
       console.log(`[OKAY] ${original}, ${altered}: ${difference}`);
     } else {
       anomalies.add(original);
       anomalies.add(altered);
       console.log(`[WARN] ${original}, ${altered}: ${difference}`);
     }
-  }
+  });
   if (config.abnormalImagesDirectory !== null) {
     const outputDir = path.join(inputDir, config.abnormalImagesDirectory);
     await fsPromises.mkdir(outputDir);
