@@ -31,8 +31,10 @@ controls the following:
     environment variable, it is not necessary to specify the full path, the
     executable name itself is sufficient.
 * `DIFF_THRESHOLD`: Maximum accepted difference between 2 images. The program
-  reports an error if the difference between 2 images is greater than this
-  value.
+  reports an error if the difference between 2 images is lower than this
+  value (i.e. not similar enough). The program uses the structural similarity
+  index measure (SSIM) to measure the similarity between 2 images, the value
+  ranges from 0 (not similar) to 1 (very similar).
 * `ABNORMAL_IMAGES_DIRECTORY`: The directory to be created for abnormal images.
   If specified, the directory will be created under the input directory.
 * Set all of the following to crop to the area to be inspected:
@@ -55,10 +57,10 @@ node index.js /path/to/images
 The output will be similar to the following:
 
 ```
-[OKAY] 01.png, 02.png: 0
-[OKAY] 02.png, 03.png: 0
-[OKAY] 03.png, 04.png: 0
-[WARN] 04.png, 05.png: 0.75
+[OKAY] 01.png, 02.png: 1
+[OKAY] 02.png, 03.png: 1
+[OKAY] 03.png, 04.png: 1
+[WARN] 04.png, 05.png: 0.250075
 ```
 
 The output shows that:
@@ -66,7 +68,7 @@ The output shows that:
 * The difference between `01.png` and `02.png` is 0 and within threshold.
 * The difference between `02.png` and `03.png` is 0 and within threshold.
 * The difference between `03.png` and `04.png` is 0 and within threshold.
-* The difference between `04.png` and `05.png` is 0.75 and above threshold.
+* The difference between `04.png` and `05.png` is 0.250075 and below threshold.
 
 If `ABNORMAL_IMAGES_DIRECTORY` is specified, `04.png` and `05.png` will be
 copied to the directory.
