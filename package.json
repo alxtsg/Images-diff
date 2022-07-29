@@ -24,7 +24,6 @@
     "dotenv": "^16.0.0"
   },
   "devDependencies": {
-    "@tsconfig/node12": "^1.0.7",
     "@tsconfig/node16": "^1.0.2",
     "@types/mocha": "^9.1.0",
     "@types/node": "^16.x.x",
