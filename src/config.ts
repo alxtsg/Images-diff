@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
 
+import path from 'path';
+
 import Metric from './metric';
 
 import type AppConfig from './types/app-config';
+
+const ENV_FILE = path.join(__dirname, '.env');
 
 const config: AppConfig = {
   magickPath: '',
@@ -13,7 +17,9 @@ const config: AppConfig = {
 };
 
 const loadConfig = (): void => {
-  const result = dotenv.config();
+  const result = dotenv.config({
+    path: ENV_FILE
+  });
   if (result.error) {
     console.error(result.error);
     throw new Error(`Unable to load configuration file.`);
