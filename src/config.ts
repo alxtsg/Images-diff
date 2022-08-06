@@ -31,12 +31,12 @@ const loadConfig = (): void => {
   if (!Number.isFinite(Number(envConfig.DIFF_THRESHOLD))) {
     throw new Error('Invalid images difference threshold.');
   }
+  config.diffThreshold = Number(envConfig.DIFF_THRESHOLD);
   const selectedMetric = envConfig.METRIC as Metric;
   if (!Object.values(Metric).includes(selectedMetric)) {
     throw new Error('Invalid comparison metric.');
   }
   config.metric = selectedMetric;
-  config.diffThreshold = Number(envConfig.DIFF_THRESHOLD);
   if (envConfig.ABNORMAL_IMAGES_DIRECTORY) {
     config.abnormalImagesDirectory = envConfig.ABNORMAL_IMAGES_DIRECTORY;
   }
