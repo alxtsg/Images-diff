@@ -24,7 +24,7 @@
     "test": "npm run test-mse && npm run test-ssim"
   },
   "dependencies": {
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.1"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
