@@ -1,12 +1,8 @@
 import dotenv from 'dotenv';
 
-import path from 'path';
-
 import Metric from './metric';
 
 import type AppConfig from './types/app-config';
-
-const ENV_FILE = path.join(__dirname, '.env');
 
 const config: AppConfig = {
   magickPath: '',
@@ -17,16 +13,15 @@ const config: AppConfig = {
 };
 
 const loadConfig = (): void => {
-  const result = dotenv.config({
-    path: ENV_FILE
-  });
-  if (result.error !== undefined) {
-    throw new Error(`Unable to read .env: ${result.error.message}`);
+  const result = dotenv.config();
+  if (result.error) {
+    console.error(result.error);
+    throw new Error(`Unable to load configuration file.`);
   }
-  if (result.parsed === undefined) {
-    throw new Error('No parsed configurations.');
+  const envConfig = process.env;
+  if (!envConfig.MAGICK_PATH) {
+    throw new Error('Missing ImageMagick path.');
   }
-  const envConfig = result.parsed;
   config.magickPath = envConfig.MAGICK_PATH;
   if (!Number.isFinite(Number(envConfig.DIFF_THRESHOLD))) {
     throw new Error('Invalid images difference threshold.');
