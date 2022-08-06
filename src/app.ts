@@ -16,13 +16,13 @@ export const run = async (inputDir: string): Promise<void> => {
   const anomalies: Set<string> = new Set();
   const results = await imageUtils.compareImageBatch(images);
   results.forEach((result) => {
-    const { original, altered, difference } = result;
-    if (difference >= config.diffThreshold) {
-      console.log(`[OKAY] ${original}, ${altered}: ${difference}`);
-    } else {
+    const { original, altered, difference, isAbnormal } = result;
+    if (isAbnormal) {
       anomalies.add(original);
       anomalies.add(altered);
       console.log(`[WARN] ${original}, ${altered}: ${difference}`);
+    } else {
+      console.log(`[OKAY] ${original}, ${altered}: ${difference}`);
     }
   });
   if (config.abnormalImagesDirectory !== null) {

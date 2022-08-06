@@ -2,12 +2,15 @@ import dotenv from 'dotenv';
 
 import path from 'path';
 
+import Metric from './metric';
+
 import type AppConfig from './types/app-config';
 
 const ENV_FILE = path.join(__dirname, '.env');
 
 const config: AppConfig = {
   magickPath: '',
+  metric: Metric.MSE,
   diffThreshold: 0,
   abnormalImagesDirectory: null,
   cropConfig: null
@@ -28,6 +31,11 @@ const loadConfig = (): void => {
   if (!Number.isFinite(Number(envConfig.DIFF_THRESHOLD))) {
     throw new Error('Invalid images difference threshold.');
   }
+  const selectedMetric = envConfig.METRIC as Metric;
+  if (!Object.values(Metric).includes(selectedMetric)) {
+    throw new Error('Invalid comparison metric.');
+  }
+  config.metric = selectedMetric;
   config.diffThreshold = Number(envConfig.DIFF_THRESHOLD);
   if (envConfig.ABNORMAL_IMAGES_DIRECTORY) {
     config.abnormalImagesDirectory = envConfig.ABNORMAL_IMAGES_DIRECTORY;
@@ -43,7 +51,9 @@ const loadConfig = (): void => {
     if (!Number.isInteger(cropWidth) ||
       !Number.isInteger(cropHeihght) ||
       !Number.isInteger(cropOffsetX) ||
-      !Number.isInteger(cropOffsetY)) {
+      !Number.isInteger(cropOffsetY) ||
+      (cropOffsetX < 0) ||
+      (cropOffsetY < 0)) {
       throw new Error('Invalid crop configurations.');
     }
     config.cropConfig = {

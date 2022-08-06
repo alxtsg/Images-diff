@@ -2,16 +2,22 @@ import childProcess from 'child_process';
 import os from 'os';
 
 import config from './config.js'
+import diffCheckers from './diff-checkers';
 
 import type ComparisonPair from './types/comparison-pair';
 import type ComparisonResult from './types/comparison-result';
 
 const WORK_BATCH_SIZE = os.cpus().length;
-const COMPARISON_METRIC = 'ssim';
 
 // ImageMagick compare program returns 2 on error.
 // https://imagemagick.org/script/compare.php
 const COMPARISON_ERROR_CODE = 2;
+
+const diffChecker = diffCheckers.get(config.metric);
+
+if (!diffChecker) {
+  throw new Error('Unable to load diff checker.');
+}
 
 /**
  * Compares images and report comparison result.
@@ -36,7 +42,7 @@ export const compareImages = async (original: string, altered: string): Promise<
   }
   args.push(...[
     '-metric',
-    COMPARISON_METRIC,
+    config.metric,
     '-compare',
     '-format',
     '%[distortion]',
@@ -72,7 +78,8 @@ export const compareImages = async (original: string, altered: string): Promise<
       resolve({
         original,
         altered,
-        difference: output
+        difference: output,
+        isAbnormal: diffChecker(output)
       });
     });
   });

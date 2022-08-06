@@ -7,7 +7,6 @@ import * as imageUtils from '../image-utils';
 import type ComparisonResult from '../types/comparison-result';
 
 const IMAGES_DIR = path.join(__dirname, 'data');
-const DIFF_THRESHOLD = 0.99;
 
 describe('Image utilities', async () => {
   it('can compare images', async () => {
@@ -24,7 +23,7 @@ describe('Image utilities', async () => {
         results.push(result);
       }
       assert.strictEqual(results.length, (files.length - 1));
-      const anomalies = results.filter((results) => (results.difference < DIFF_THRESHOLD));
+      const anomalies = results.filter((result) => result.isAbnormal);
       assert.strictEqual(anomalies.length, 1);
     });
   });
@@ -34,7 +33,7 @@ describe('Image utilities', async () => {
     await assert.doesNotReject(async () => {
       const results = await imageUtils.compareImageBatch(files);
       assert.strictEqual(results.length, (files.length - 1));
-      const anomalies = results.filter((results) => (results.difference < DIFF_THRESHOLD));
+      const anomalies = results.filter((result) => result.isAbnormal);
       assert.strictEqual(anomalies.length, 1);
     });
   });
