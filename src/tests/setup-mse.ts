@@ -14,7 +14,7 @@ const ENV_CONTENT = [
 ].join('\n');
 
 const main = async () => {
-  await fsPromises.writeFile(ENV_FILE, ENV_CONTENT)
+  await fsPromises.writeFile(ENV_FILE, ENV_CONTENT);
 };
 
 main();
