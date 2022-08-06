@@ -17,8 +17,10 @@
     "copy-test-data": "copyfiles -u 2 \"src/tests/data/*\" dist/tests",
     "build-test": "tsc && npm run copy-env && npm run copy-package-json && npm run copy-test-data",
     "build-release": "tsc && npm run copy-env && npm run copy-package-json",
-    "test-mse": "node tests/setup-mse.js && mocha --recursive --exclude tests/setup*.js \"tests/**/*.test.js\"",
-    "test-ssim": "node tests/setup-ssim.js && mocha --recursive --exclude tests/setup*.js \"tests/**/*.test.js\"",
+    "pretest-mse": "node tests/setup-mse.js",
+    "pretest-ssim": "node tests/setup-ssim.js",
+    "test-mse": "npm run pretest-mse && mocha --recursive \"tests/**/*.test.js\"",
+    "test-ssim": "npm run pretest-ssim && mocha --recursive \"tests/**/*.test.js\"",
     "test": "npm run test-mse && npm run test-ssim"
   },
   "dependencies": {
