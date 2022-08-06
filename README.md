@@ -10,7 +10,8 @@ following comparisons:
 * `a.jpeg` and `b.jpeg`
 * `b.jpeg` and `c.jpeg`
 
-The differences are computed using MSE (mean error squared) as the metric.
+The differences can be computed using MSE (mean error squared) or SSIM
+(structural similarity index measure) as the metric.
 
 ## Requirements ##
 
@@ -30,11 +31,9 @@ controls the following:
   * If `magick` (for UNIX/ Linux system) or `magick.exe` is in the `PATH`
     environment variable, it is not necessary to specify the full path, the
     executable name itself is sufficient.
-* `DIFF_THRESHOLD`: Maximum accepted difference between 2 images. The program
-  reports an error if the difference between 2 images is lower than this
-  value (i.e. not similar enough). The program uses the structural similarity
-  index measure (SSIM) to measure the similarity between 2 images, the value
-  ranges from 0 (not similar) to 1 (very similar).
+* `METRIC`: Comparison metric. Acceptable values are `mse` and `ssim`.
+* `DIFF_THRESHOLD`: Difference threhsold. If the differene is beyond the
+  threshold, the comparison pair is considered as abnormal.
 * `ABNORMAL_IMAGES_DIRECTORY`: The directory to be created for abnormal images.
   If specified, the directory will be created under the input directory.
 * Set all of the following to crop to the area to be inspected:
@@ -47,8 +46,8 @@ An example, `.env.template`, is provided as a reference.
 
 ## Examples ##
 
-Assume the directory `/path/to/images` contains some images for comparisons,
-execute:
+Assume the directory `/path/to/images` contains some images for comparisons and
+using SSIM as the metric, execute:
 
 ```
 node index.js /path/to/images

@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Compare images in batch and report the differences.",
   "homepage": "https://bitbucket.org/alxtsg/images-diff/",
   "license": "BSD-3-Clause",
@@ -17,8 +17,9 @@
     "copy-test-data": "copyfiles -u 2 \"src/tests/data/*\" dist/tests",
     "build-test": "tsc && npm run copy-env && npm run copy-package-json && npm run copy-test-data",
     "build-release": "tsc && npm run copy-env && npm run copy-package-json",
-    "pretest": "node tests/setup.js",
-    "test": "mocha --recursive --exclude tests/setup.js \"tests/**/*.test.js\""
+    "test-mse": "node tests/setup-mse.js && mocha --recursive --exclude tests/setup*.js \"tests/**/*.test.js\"",
+    "test-ssim": "node tests/setup-ssim.js && mocha --recursive --exclude tests/setup*.js \"tests/**/*.test.js\"",
+    "test": "npm run test-mse && npm run test-ssim"
   },
   "dependencies": {
     "dotenv": "^16.0.0"
