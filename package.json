@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Compare images in batch and report the differences.",
   "homepage": "https://bitbucket.org/alxtsg/images-diff/",
   "license": "BSD-3-Clause",
