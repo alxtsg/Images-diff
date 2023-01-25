@@ -31,7 +31,7 @@ jobs:
         mv magick "$HOME/.local/bin"
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
         # FFmpeg.
-        apt install -y ffmpeg
+        sudo apt install -y ffmpeg
     - name: Check dependencies
       run: |
         magick -version
