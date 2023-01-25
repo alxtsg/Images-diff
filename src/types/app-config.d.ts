@@ -9,6 +9,11 @@ export default interface AppConfig {
   magickPath: string;
 
   /**
+   * FFmpeg binary path.
+   */
+  ffmpegPath: string;
+
+  /**
    * Comparison metric.
    */
   metric: Metric;

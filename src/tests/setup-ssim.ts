@@ -3,7 +3,7 @@ import path from 'path';
 
 const ENV_FILE = path.join(__dirname, '..', '.env');
 const ENV_CONTENT = [
-  'MAGICK_PATH=magick',
+  'FFMPEG_PATH=ffmpeg',
   'METRIC=ssim',
   'DIFF_THRESHOLD=0.9',
   'ABNORMAL_IMAGES_DIRECTORY=abnormal',

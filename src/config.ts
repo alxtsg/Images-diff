@@ -10,6 +10,7 @@ const ENV_FILE = path.join(__dirname, '.env');
 
 const config: AppConfig = {
   magickPath: '',
+  ffmpegPath: '',
   metric: Metric.MSE,
   diffThreshold: 0,
   abnormalImagesDirectory: null,
@@ -25,10 +26,12 @@ const loadConfig = (): void => {
     throw new Error(`Unable to load configuration file.`);
   }
   const envConfig = process.env;
-  if (!envConfig.MAGICK_PATH) {
-    throw new Error('Missing ImageMagick path.');
+  if (envConfig.MAGICK_PATH) {
+    config.magickPath = envConfig.MAGICK_PATH;
   }
-  config.magickPath = envConfig.MAGICK_PATH;
+  if (envConfig.FFMPEG_PATH) {
+    config.ffmpegPath = envConfig.FFMPEG_PATH;
+  }
   if (!Number.isFinite(Number(envConfig.DIFF_THRESHOLD))) {
     throw new Error('Invalid images difference threshold.');
   }
@@ -38,6 +41,12 @@ const loadConfig = (): void => {
     throw new Error('Invalid comparison metric.');
   }
   config.metric = selectedMetric;
+  if ((config.metric === Metric.MSE) && !config.magickPath) {
+    throw new Error('Missing ImageMagick path.');
+  }
+  if ((config.metric === Metric.SSIM) && !config.ffmpegPath) {
+    throw new Error('Missing FFmpeg path.');
+  }
   if (envConfig.ABNORMAL_IMAGES_DIRECTORY) {
     config.abnormalImagesDirectory = envConfig.ABNORMAL_IMAGES_DIRECTORY;
   }
