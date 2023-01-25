@@ -24,13 +24,18 @@ jobs:
     # Reference: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path
     - name: Install dependencies
       run: |
+        # ImageMagick.
         mkdir -p "$HOME/.local/bin"
         curl -O 'https://imagemagick.org/archive/binaries/magick'
         chmod u+x magick
         mv magick "$HOME/.local/bin"
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        # FFmpeg.
+        apt install -y ffmpeg
     - name: Check dependencies
-      run: magick -version
+      run: |
+        magick -version
+        ffmpeg -version
 
     # Build
     - name: Install dependencies (build)
@@ -75,11 +80,13 @@ jobs:
     - name: Install dependencies
       run: |
         Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-        choco install imagemagick
+        choco install imagemagick ffmpeg
         refreshenv
         Write-Output "$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Check dependencies
-      run: magick -version
+      run: |
+        magick -version
+        ffmpeg -version
 
     # Build
     - name: Install dependencies (build)
