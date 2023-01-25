@@ -16,7 +16,8 @@ The differences can be computed using MSE (mean error squared) or SSIM
 ## Requirements ##
 
 * Node.js (`>=16`).
-* ImageMagick (`>=7.1`).
+* ImageMagick (`>=7.1`), when MSE is used as the metric.
+* FFmpeg (`>=5.1`), when SSIM is used as the metric.
 
 ## Installation ##
 
@@ -29,6 +30,10 @@ controls the following:
 
 * `MAGICK_PATH`: Path of ImageMagick.
   * If `magick` (for UNIX/ Linux system) or `magick.exe` is in the `PATH`
+    environment variable, it is not necessary to specify the full path, the
+    executable name itself is sufficient.
+* `FFMPEG_PATH`: Path of FFmpeg.
+  * If `ffmpeg` (for UNIX/ Linux system) or `ffmpeg.exe` is in the `PATH`
     environment variable, it is not necessary to specify the full path, the
     executable name itself is sufficient.
 * `METRIC`: Comparison metric. Acceptable values are `mse` and `ssim`.
