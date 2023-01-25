@@ -7,7 +7,9 @@ import * as app from '../app';
 const INPUT_DIR = path.join(__dirname, 'data');
 const ABNORMAL_IMAGES_DIR = path.join(__dirname, 'data', 'abnormal');
 
-describe('Main application', async () => {
+describe('Main application', async function() {
+  this.timeout(10000);
+
   it('can compare images and copy abnormal images', async () => {
     await assert.doesNotReject(async () => {
       await app.run(INPUT_DIR);

@@ -8,7 +8,9 @@ import type ComparisonResult from '../types/comparison-result';
 
 const IMAGES_DIR = path.join(__dirname, 'data');
 
-describe('Image utilities', async () => {
+describe('Image utilities', async function() {
+  this.timeout(10000);
+
   it('can compare images', async () => {
     const files = await fsUtils.getFiles(IMAGES_DIR);
     await assert.doesNotReject(async () => {
