@@ -25,6 +25,10 @@ jobs:
     - name: Install dependencies
       run: |
         # ImageMagick.
+        # AppImages require FUSE version 2 to run.
+        # Reference: https://github.com/AppImage/AppImageKit/wiki/FUSE
+        sudo add-apt-repository universe
+        sudo apt install libfuse2
         mkdir -p "$HOME/.local/bin"
         curl -O 'https://imagemagick.org/archive/binaries/magick'
         chmod u+x magick
