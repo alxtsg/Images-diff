@@ -70,12 +70,12 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
     });
     magick.once('close', (code) => {
       if (code === IM_COMPARISON_ERROR_CODE) {
-        reject(new Error(`Compare program exited with code ${code}.`));
+        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
         return;
       }
       const output = Number(outputLines.join(''));
       if (Number.isNaN(output)) {
-        reject(new Error(`Unexpected comparison output: ${output}`));
+        reject(new Error(`Unexpected comparison output when comparing ${original} and ${altered}: ${output}`));
         return;
       }
       resolve({
@@ -141,19 +141,19 @@ const ssim = async (original: string, altered: string): Promise<ComparisonResult
     });
     ffmpeg.once('close', (code) => {
       if (code !== FFMPEG_SUCCESS_EXIT_CODE) {
-        reject(new Error(`Compare program exited with code ${code}.`));
+        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
         return;
       }
       const output = outputLines.join('');
       const results = FFMPEG_SSIM_OUTPUT_REGEX.exec(output);
       if ((results === null) || (results.length < 2)) {
-        reject(new Error(`Unexpected comparison output: ${output}`));
+        reject(new Error(`Unexpected comparison output when comparing ${original} and ${altered}: ${output}`));
         return;
       }
       // Get the first matching group.
       const difference = Number(results[1]);
       if (Number.isNaN(difference)) {
-        reject(new Error(`Unexpected SSIM value: ${results[1]}`));
+        reject(new Error(`Unexpected SSIM value when comparing ${original} and ${altered}: ${results[1]}`));
         return;
       }
       resolve({
