@@ -24,15 +24,15 @@
     "test": "npm run test-mse && npm run test-ssim"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^16.1.0",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^16.x.x",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.x.x",
     "copyfiles": "^2.4.1",
-    "mocha": "^10.2.0",
-    "rimraf": "^5.0.1",
-    "typescript": "^5.1.6"
+    "mocha": "^10.3.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.2"
   }
 }
