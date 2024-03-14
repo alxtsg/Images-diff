@@ -15,9 +15,9 @@ The differences can be computed using MSE (mean error squared) or SSIM
 
 ## Requirements ##
 
-* Node.js (`>=16`).
+* Node.js (`>=20`).
 * ImageMagick (`>=7.1`), when MSE is used as the metric.
-* FFmpeg (`>=5.1`), when SSIM is used as the metric.
+* FFmpeg (`>=6.1`), when SSIM is used as the metric.
 
 ## Installation ##
 
