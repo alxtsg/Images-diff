@@ -1,4 +1,5 @@
 import childProcess from 'child_process';
+import EventEmitter from 'events';
 import os from 'os';
 
 import config from './config'
@@ -203,18 +204,37 @@ export const compareImageBatch = async (paths: string[]): Promise<ComparisonResu
       altered: path
     });
   });
+
   const results: ComparisonResult[] = [];
-  while (pairs.length > 0) {
-    const batch = [];
-    for (let i = 0; i < WORK_BATCH_SIZE; i += 1) {
-      const pair = pairs.shift();
-      if (!pair) {
-        break;
-      }
-      batch.push(compareImages(pair.original, pair.altered));
-    }
-    const batchResults = await Promise.all(batch);
-    results.push(...batchResults);
+  const runners = [];
+  for (let i = 0; i < WORK_BATCH_SIZE; i += 1) {
+    runners.push(new Promise((resolve, reject) => {
+      const emitter = new EventEmitter();
+      emitter.on('next', () => {
+        const pair = pairs.shift();
+        if (pair === undefined) {
+          resolve(true);
+          return;
+        }
+        compareImages(pair.original, pair.altered)
+          .then((result) => {
+            results.push(result);
+          })
+          .catch((error: Error) => {
+            reject(error);
+          })
+          .finally(() => {
+            emitter.emit('next');
+          });
+      });
+      emitter.emit('next');
+    }));
   }
+  await Promise.all(runners);
+
+  results.sort((resultA, resultB) => {
+    return resultA.original.localeCompare(resultB.original);
+  });
+
   return results;
 }
