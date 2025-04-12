@@ -57,7 +57,7 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
       config.magickPath,
       args,
       {
-        // Ignore both stdin and stderr as only the stdout is being read.
+        // Only read from stdout, ignore stdin and stderr.
         stdio: ['ignore', 'pipe', 'ignore']
       }
     );
@@ -132,7 +132,7 @@ const ssim = async (original: string, altered: string): Promise<ComparisonResult
       config.ffmpegPath,
       args,
       {
-        // Ignore both stdin and stdout as only the stdout is being read.
+        // Only read from stderr, ignore stdin and stdout.
         stdio: ['ignore', 'ignore', 'pipe']
       }
     );
