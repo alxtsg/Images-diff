@@ -21,7 +21,7 @@ The differences can be computed using MSE (mean error squared) or SSIM
 
 ## Installation ##
 
-0. `npm clean-install --production`
+0. `npm clean-install --omit=dev`
 
 ## Configuration ##
 
@@ -37,7 +37,7 @@ controls the following:
     environment variable, it is not necessary to specify the full path, the
     executable name itself is sufficient.
 * `METRIC`: Comparison metric. Acceptable values are `mse` and `ssim`.
-* `DIFF_THRESHOLD`: Difference threhsold. If the differene is beyond the
+* `DIFF_THRESHOLD`: Difference threshold. If the difference is beyond the
   threshold, the comparison pair is considered as abnormal.
 * `ABNORMAL_IMAGES_DIRECTORY`: The directory to be created for abnormal images.
   If specified, the directory will be created under the input directory.
@@ -45,7 +45,7 @@ controls the following:
   * `CROP_WIDTH`: The width of a cropped image.
   * `CROP_HEIGHT`: The height of a cropped image.
   * `CROP_OFFSET_X`: The offset from the left of the original image.
-  * `CROP_OFFSET_Y`: The offset from the top of the originam image.
+  * `CROP_OFFSET_Y`: The offset from the top of the original image.
 
 An example, `.env.template`, is provided as a reference.
 
@@ -76,6 +76,23 @@ The output shows that:
 
 If `ABNORMAL_IMAGES_DIRECTORY` is specified, `04.png` and `05.png` will be
 copied to the directory.
+
+If the images cannot be compared, for example due to corrupted file headers, and
+ImageMagick or FFmpeg is unable to complete the comparison, an error may be
+printed on stderr. For example:
+
+```
+Compare program exited with code 1 when comparing 01.avif and 02.avif.
+```
+
+In such case, the differences between the images will be set to `null`. For
+example:
+
+```
+[WARN] 01.avif, 02.avif: null
+```
+
+The involved files will be copied to `ABNORMAL_IMAGES_DIRECTORY`.
 
 ## License ##
 
