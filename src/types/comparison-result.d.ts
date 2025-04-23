@@ -12,7 +12,7 @@ export default interface ComparisonResult {
   /**
    * Difference between the original image and the altered image.
    */
-  difference: number;
+  difference: number | null;
 
   /**
    * Whether the difference is beyond threshold and considered abnormal.

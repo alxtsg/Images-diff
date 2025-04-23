@@ -14,7 +14,7 @@
     "clean": "rimraf dist/",
     "copy-env": "copyfiles -u 1 src/.env.template dist",
     "copy-package-json": "copyfiles \"package*.json\" dist",
-    "copy-test-data": "copyfiles -u 2 \"src/tests/data/*\" dist/tests",
+    "copy-test-data": "copyfiles -u 2 \"src/tests/data/*\" dist/tests && copyfiles -u 2 \"src/tests/invalid-data/*\" dist/tests",
     "build-test": "tsc && npm run copy-env && npm run copy-package-json && npm run copy-test-data",
     "build-release": "tsc && npm run copy-env && npm run copy-package-json",
     "pretest-mse": "node tests/setup-mse.js",

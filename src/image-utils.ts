@@ -57,11 +57,12 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
       config.magickPath,
       args,
       {
-        // Only read from stdout, ignore stdin and stderr.
-        stdio: ['ignore', 'pipe', 'ignore']
+        // Only read from stdout and stderr, ignore stdin.
+        stdio: ['ignore', 'pipe', 'pipe']
       }
     );
     const outputLines: string[] = [];
+    const errorLines: string[] = [];
     magick.once('error', (error) => {
       reject(error);
       return;
@@ -69,9 +70,25 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
     magick.stdout.on('data', (data) => {
       outputLines.push(Buffer.from(data, 'utf8').toString());
     });
+    magick.stderr.on('data', (data) => {
+      errorLines.push(Buffer.from(data, 'utf8').toString());
+    });
+    const result: ComparisonResult = {
+      original,
+      altered,
+      difference: null,
+      isAbnormal: true
+    };
     magick.once('close', (code) => {
       if (code === IM_COMPARISON_ERROR_CODE) {
-        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
+        console.error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`);
+        resolve(result);
+        return;
+      }
+      if (errorLines.length !== 0) {
+        console.error(`Compare program reported errors when comparing ${original} and ${altered}.`);
+        console.error(errorLines.join(''));
+        resolve(result);
         return;
       }
       const output = Number(outputLines.join(''));
@@ -79,12 +96,9 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
         reject(new Error(`Unexpected comparison output when comparing ${original} and ${altered}: ${output}`));
         return;
       }
-      resolve({
-        original,
-        altered,
-        difference: output,
-        isAbnormal: diffChecker(output)
-      });
+      result.difference = output;
+      result.isAbnormal = diffChecker(output);
+      resolve(result);
     });
   });
 };
@@ -140,9 +154,16 @@ const ssim = async (original: string, altered: string): Promise<ComparisonResult
     ffmpeg.stderr.on('data', (data) => {
       outputLines.push(Buffer.from(data, 'utf8').toString());
     });
+    const result: ComparisonResult = {
+      original,
+      altered,
+      difference: null,
+      isAbnormal: true
+    };
     ffmpeg.once('close', (code) => {
       if (code !== FFMPEG_SUCCESS_EXIT_CODE) {
-        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
+        console.error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`);
+        resolve(result);
         return;
       }
       const output = outputLines.join('');
@@ -157,12 +178,9 @@ const ssim = async (original: string, altered: string): Promise<ComparisonResult
         reject(new Error(`Unexpected SSIM value when comparing ${original} and ${altered}: ${results[1]}`));
         return;
       }
-      resolve({
-        original,
-        altered,
-        difference,
-        isAbnormal: diffChecker(difference)
-      });
+      result.difference = difference;
+      result.isAbnormal = diffChecker(difference);
+      resolve(result);
     });
   });
 };
