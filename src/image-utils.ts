@@ -81,14 +81,11 @@ const mse = async (original: string, altered: string): Promise<ComparisonResult>
     };
     magick.once('close', (code) => {
       if (code === IM_COMPARISON_ERROR_CODE) {
-        console.error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`);
-        resolve(result);
+        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
         return;
       }
       if (errorLines.length !== 0) {
-        console.error(`Compare program reported errors when comparing ${original} and ${altered}.`);
-        console.error(errorLines.join(''));
-        resolve(result);
+        reject(new Error(`Compare program reported errors when comparing ${original} and ${altered}. ${errorLines.join('')}`));
         return;
       }
       const output = Number(outputLines.join(''));
@@ -162,8 +159,7 @@ const ssim = async (original: string, altered: string): Promise<ComparisonResult
     };
     ffmpeg.once('close', (code) => {
       if (code !== FFMPEG_SUCCESS_EXIT_CODE) {
-        console.error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`);
-        resolve(result);
+        reject(new Error(`Compare program exited with code ${code} when comparing ${original} and ${altered}.`));
         return;
       }
       const output = outputLines.join('');
@@ -239,7 +235,13 @@ export const compareImageBatch = async (paths: string[]): Promise<ComparisonResu
             results.push(result);
           })
           .catch((error: Error) => {
-            reject(error);
+            console.error(error.message);
+            results.push({
+              original: pair.original,
+              altered: pair.altered,
+              difference: null,
+              isAbnormal: true
+            });
           })
           .finally(() => {
             emitter.emit('next');
