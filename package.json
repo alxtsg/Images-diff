@@ -1,6 +1,6 @@
 {
   "name": "images-diff",
-  "version": "8.3.0",
+  "version": "8.3.1",
   "description": "Compare images in batch and report the differences.",
   "homepage": "https://bitbucket.org/alxtsg/images-diff/",
   "license": "BSD-3-Clause",
@@ -24,14 +24,14 @@
     "test": "npm run test-mse && npm run test-ssim"
   },
   "dependencies": {
-    "dotenv": "^16.5.0"
+    "dotenv": "^17.2.1"
   },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.5",
+    "@tsconfig/node22": "^22.0.2",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^20.x.x",
+    "@types/node": "^22.x.x",
     "copyfiles": "^2.4.1",
-    "mocha": "^11.1.0",
+    "mocha": "^11.7.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
   }
